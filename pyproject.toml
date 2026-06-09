@@ -1,0 +1,29 @@
+[project]
+name = "writing-api-cli"
+version = "0.1.0"
+description = "CLI client for interfacing with Writing Logs API"
+requires-python = ">=3.10"
+dependencies = [
+    "certifi==2026.5.20",
+    "charset-normalizer==3.4.7",
+    "idna==3.18",
+    "jaraco.classes==3.4.0",
+    "jaraco.context==6.1.2",
+    "jaraco.functools==4.5.0",
+    "keyring==25.7.0",
+    "more-itertools==11.1.0",
+    "python-dotenv==1.2.2",
+    "requests==2.34.2",
+    "urllib3==2.7.0"
+]
+
+[project.scripts]
+wses = "wses.main:main"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"

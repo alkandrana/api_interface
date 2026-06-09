@@ -1,9 +1,5 @@
 import os, sys, dotenv, requests
-from typing import Any
-
 import keyring as kr
-from api import send_verified_request, check_server_health
-
 dotenv.load_dotenv()
 # AUTH WORKFLOW
 # 1. User sends request
@@ -17,6 +13,15 @@ dotenv.load_dotenv()
 #       if response unauthorized
 #           get_refresh_token()
 
+def check_server_health():
+    try:
+        response = requests.get(os.getenv("BASE_URL"), timeout=5)
+        return response.status_code < 500
+        # res_dict = vars(response)
+        # for key, value in res_dict.items():
+        #     print(f"{key}: {value}")
+    except requests.RequestException:
+        return False
 def send_auth_request(request):
     access_token = get_access_token()
     headers = {
@@ -51,15 +56,22 @@ def validate_response(request):
     print("Response status: ", response.status_code)
     # if request succeeded
     if 200 <= response.status_code < 300:
-        content = response.json()
-        return content
+        if request["method"] == "GET":
+            content = response.json()
+            return content
+        else:
+            return response
     # if access token expired
     elif response.status_code == 401:
         print("Access token expired. Refreshing...")
+        get_refresh_token()
         response = send_request(request)
         if 200 <= response.status_code < 300:
-            content = response.json()
-            return content
+            if request["method"] == "GET":
+                content = response.json()
+                return content
+            else:
+                return response
         else:
             print("Refresh failed.")
             print("An error occurred:", response.status_code, response.reason)
@@ -71,9 +83,8 @@ def validate_response(request):
         sys.exit(1)
 
 def send_request(request) -> requests.Response | None:
-    get_refresh_token()
     access_token = get_access_token()
-    print("Access token refreshed.")
+    print("Access token retrieved.")
     request["headers"]["Authorization"] = f"Bearer {access_token}"
     if request["method"] == "POST":
         response = requests.post(request["endpoint"],
