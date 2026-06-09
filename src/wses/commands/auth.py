@@ -46,7 +46,7 @@ def get_access_token():
         get_refresh_token()
         return kr.get_password("wlogs", "access_token")
 def validate_response(request):
-    print("Sending request...")
+    print(f"Sending {request['method']} request...")
     # check server
     if not check_server_health():
         print("The server appears to be down.")
@@ -73,8 +73,8 @@ def validate_response(request):
             else:
                 return response
         else:
-            print("Refresh failed.")
-            print("An error occurred:", response.status_code, response.reason)
+            print("Request failed.")
+            print("An error occurred:", response.status_code, response.reason, response.url)
             sys.exit(1)
     # if request did not succeed
     else:

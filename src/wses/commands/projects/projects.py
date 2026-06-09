@@ -1,14 +1,19 @@
 import os
 from ..auth import send_auth_request
 
-def get_projects(_):
+
+def get_projects():
     request = {
         "method": "GET",
         "endpoint": f"{os.getenv('BASE_URL')}/projects",
     }
     records = send_auth_request(request)
-    print(f"Found {len(records)} projects:\n")
-    for rec in records:
+    return records
+
+
+def print_projects(projects):
+    print(f"Found {len(projects)} projects:\n")
+    for rec in projects:
         for key, value in rec.items():
             if "author" not in key:
                 print(f"{key}: {value}")
@@ -16,17 +21,29 @@ def get_projects(_):
                 print(f"{key}: {value['userName']}")
         print("\n")
 
-def get_project(args):
+def view_all(args):
+    projects = get_projects()
+    print_projects(projects)
+
+def get_project(code):
     request = {
         "method": "GET",
-        "endpoint": f"{os.getenv('BASE_URL')}/projects/{args.id}",
+        "endpoint": f"{os.getenv('BASE_URL')}/projects/code/{code}",
     }
     record = send_auth_request(request)
-    print(f"\nProject {args.id}: {record['title']}")
-    for key, value in record.items():
+    return record
+
+
+def print_project(project):
+    print(f"\nProject {project['id']}: {project['title']}")
+    for key, value in project.items():
         if "author" not in key:
             print(f"{key}: {value}")
     print("\n")
+
+def view_one(args):
+    project = get_project(args.code)
+    print_project(project)
 
 def create_project(args):
     body = {
@@ -51,11 +68,11 @@ def parse_project(subparsers):
     project_parser = subparsers.add_parser("projects")
     project_subparsers = project_parser.add_subparsers(dest="subcommand")
     all_parser = project_subparsers.add_parser("all")
-    all_parser.set_defaults(func=get_projects)
+    all_parser.set_defaults(func=view_all)
 
     one_parser = project_subparsers.add_parser("one")
-    one_parser.add_argument("--id")
-    one_parser.set_defaults(func=get_project)
+    one_parser.add_argument("--code", "-c", required=True)
+    one_parser.set_defaults(func=view_one)
 
     create_parser = project_subparsers.add_parser("create")
     create_parser.add_argument("--code", "-c", required=True)
