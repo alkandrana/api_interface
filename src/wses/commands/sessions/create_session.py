@@ -1,8 +1,10 @@
 import sys, os, dotenv
 from ..auth import send_auth_request
 from ..scenes.scene import get_one_scene
-from ..utils import to_zulu
+from ..utils import to_zulu, format_dates
+
 dotenv.load_dotenv()
+
 def get_scene_id(code):
     print(f"Fetching scene with code {code}...")
     res = get_one_scene(code)
@@ -13,7 +15,13 @@ def get_scene_id(code):
         scene = res.json()
     return scene['id']
 
+
 def build_session_body(args):
+    format_dates({
+        "date": args.date,
+        "start": args.start,
+        "stop": args.stop
+    })
     body = {
         "date": args.date,
         "words": args.words
@@ -28,8 +36,7 @@ def build_session_body(args):
         body['comments'] = args.note
     return body
 
-def create_session(args):
-    body = build_session_body(args)
+def post_session(body):
     request = {
         "method": "POST",
         "endpoint": f"{os.getenv('BASE_URL')}/sessions",
@@ -37,6 +44,11 @@ def create_session(args):
     }
     res = send_auth_request(request)
     print(f"Request status: {res.status_code, res.reason}")
+
+def create_session(args):
+    body = build_session_body(args)
+    post_session(body)
+
 
 def parse_create_session(session_subparsers):
     create_parser = session_subparsers.add_parser("create")
@@ -47,9 +59,3 @@ def parse_create_session(session_subparsers):
     create_parser.add_argument("--stop", "-e", required=False)
     create_parser.add_argument("--note", "-n", required=False)
     create_parser.set_defaults(func=create_session)
-
-# date: 2026-06-06
-# startTime: 2026-06-06 17:33:48
-# stopTime: 2026-06-06 17:54:40
-# words: 275
-# comments: None

@@ -1,13 +1,14 @@
 import os, dotenv
 from datetime import datetime
-
 from ..auth import send_auth_request
+asp_url = os.getenv("BASE_URL")
+node_url = 'http://localhost:3000'
 
 dotenv.load_dotenv()
 def get_all_sessions():
     request = {
         "method": "GET",
-        "endpoint": f"{os.getenv('BASE_URL')}/sessions"
+        "endpoint": f"{node_url}/sessions"
     }
     res = send_auth_request(request)
     sessions = res.json()
