@@ -1,4 +1,4 @@
-import os
+import os, sys
 
 from ..auth import send_auth_request
 
@@ -7,8 +7,24 @@ def get_project_id(project_code):
         'method': 'GET',
         'endpoint': f'{os.getenv("BASE_URL")}/projects/code/{project_code}'
     }
-    project = send_auth_request(project_req)
-    return project["id"]
+    res = send_auth_request(project_req)
+    if res.status_code == 404:
+        print("Project does not exist.")
+        sys.exit(1)
+    else:
+        return res.json()['id']
+
+def get_status_id(status):
+    status_req = {
+        'method': 'GET',
+        'endpoint': f'{os.getenv("BASE_URL")}/status/{status}'
+    }
+    res = send_auth_request(status_req)
+    if res.status_code == 404:
+        print("Status is not valid. Make sure it matches one of the following: pending, writing, finished, aborted.")
+        sys.exit(1)
+    else:
+        return res.json()['id']
 
 def build_body(args, project_id):
     body = {
@@ -21,7 +37,8 @@ def build_body(args, project_id):
     if args.words:
         body['words'] = args.words
     if args.status:
-        body['statusId'] = args.status
+        status_id = get_status_id(args.status)
+        body['statusId'] = status_id
     if args.mc:
         body['plotline'] = args.mc
     return body
@@ -32,6 +49,7 @@ def post_scene(body):
         "endpoint": f"{os.getenv('BASE_URL')}/scenes",
         "payload": body
     }
+    print(body)
     response = send_auth_request(scene_req)
     return response
 

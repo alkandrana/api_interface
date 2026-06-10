@@ -55,23 +55,15 @@ def validate_response(request):
     response = send_request(request)
     print("Response status: ", response.status_code)
     # if request succeeded
-    if 200 <= response.status_code < 300:
-        if request["method"] == "GET":
-            content = response.json()
-            return content
-        else:
-            return response
+    if 200 <= response.status_code < 300 or response.status_code == 404:
+        return response
     # if access token expired
     elif response.status_code == 401:
         print("Access token expired. Refreshing...")
         get_refresh_token()
         response = send_request(request)
-        if 200 <= response.status_code < 300:
-            if request["method"] == "GET":
-                content = response.json()
-                return content
-            else:
-                return response
+        if 200 <= response.status_code < 300 or response.status_code == 404:
+            return response
         else:
             print("Request failed.")
             print("An error occurred:", response.status_code, response.reason, response.url)
