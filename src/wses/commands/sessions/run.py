@@ -8,7 +8,7 @@ import sys, os, json
 def initialize(scene):
     session_data = {
         "date": datetime.strftime(datetime.today(), "%Y-%m-%d"),
-        "start": datetime.strftime(
+        "start_time": datetime.strftime(
             datetime.now(),
             '%Y-%m-%dT%H:%M:%S'
         ),
@@ -32,13 +32,11 @@ def build_session(words):
             data = json.load(f)
         if not "stop_time" in data:
             data["stop_time"] = (
-                to_zulu(
                     datetime.strftime(
                         datetime.now(),
                         "%Y-%m-%dT%H:%M:%S"
                     )
                 )
-            )
         data["words"] = words
     else:
         print("No session running.")
@@ -69,11 +67,12 @@ def save_local(data):
         sys.exit(1)
 
 def convert_to_session(data):
-    scene_id = get_scene_id(data["scene"])
+    code = data["scene"].split("-")[1]
+    scene_id = get_scene_id(code)
     return {
         "date": data["date"],
-        "startTime": data["start_time"],
-        "stopTime": data["stop_time"],
+        "startTime": to_zulu(data["start_time"]),
+        "stopTime": to_zulu(data["stop_time"]),
         "words": data["words"],
         "sceneId": scene_id
     }
@@ -88,7 +87,23 @@ def stop(args):
     data = build_session(args.words)
     save_local(data)
     session = convert_to_session(data)
+    print(session)
     post_session(session)
+    path = Path(os.getenv("TMP_PATH"))
+    path.unlink(missing_ok=True)
+    print("Session saved")
+
+def cancel(_):
+    path = Path(os.getenv("TMP_PATH"))
+    if path.exists():
+        with open(path, "r") as f:
+            data = json.load(f)
+        path.unlink()
+        print("Session cancelled: ")
+        for key, value in data.items():
+            print(f"{key}: {value}")
+    else:
+        print("No session running.")
 
 def parse_run_session(session_subparsers):
     run_parser = session_subparsers.add_parser("run")
@@ -101,3 +116,6 @@ def parse_run_session(session_subparsers):
     stop_parser = run_subparsers.add_parser("stop")
     stop_parser.add_argument("--words", "-w", help="Words Written")
     stop_parser.set_defaults(func=stop)
+
+    cancel_parser = run_subparsers.add_parser("cancel")
+    cancel_parser.set_defaults(func=cancel)
