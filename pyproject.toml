@@ -1,5 +1,5 @@
 [project]
-name = "writing-api-cli"
+name = "writing-logs-cli"
 version = "0.1.0"
 description = "CLI client for interfacing with Writing Logs API"
 requires-python = ">=3.10"
@@ -18,7 +18,7 @@ dependencies = [
 ]
 
 [project.scripts]
-wses = "wses.main:main"
+wlogs = "wses.main:main"
 
 [build-system]
 requires = ["setuptools"]

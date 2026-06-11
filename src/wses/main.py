@@ -12,7 +12,7 @@ def main():
     parse_sessions(subparsers)
     args = parser.parse_args()
     args.func(args)
-    print(args)
+    # print(args)
 
 if __name__ == "__main__":
     main()

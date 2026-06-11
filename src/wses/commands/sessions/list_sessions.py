@@ -1,14 +1,11 @@
-import os, dotenv
 from datetime import datetime
 from ..auth import send_auth_request
-asp_url = os.getenv("BASE_URL")
-node_url = 'http://localhost:3000'
+from ...commands import get_record_id, asp_url, node_url
 
-dotenv.load_dotenv()
 def get_all_sessions():
     request = {
         "method": "GET",
-        "endpoint": f"{node_url}/sessions"
+        "endpoint": f"{asp_url}/sessions"
     }
     res = send_auth_request(request)
     sessions = res.json()
@@ -17,12 +14,12 @@ def get_all_sessions():
 
 
 def print_sessions(sessions):
-    print(f"\nYou have {len(sessions)} sessions:\n")
+    print(f"\n{len(sessions)} sessions match the criteria:\n")
     for ses in sessions:
         for key, value in ses.items():
-            if key == "scene":
+            if key == "scene" and value and "code" in value:
                 print(f"{key}: {value['code']}")
-            elif key == "author":
+            elif key == "author" and value and "userName" in value:
                 print(f"{key}: {value['userName']}")
             elif "time" in key.lower():
                 value = datetime.fromisoformat(value)
@@ -32,10 +29,53 @@ def print_sessions(sessions):
                 print(f"{key}: {value}")
         print("\n")
 
-def list_sessions(_):
-    sessions = get_all_sessions()
-    print_sessions(sessions)
+def get_by_date(date, sessions):
+    filtered = [s for s in sessions if s['date'].startswith(date)]
+    return filtered
+
+def get_by_scene(scene):
+    scene_id = get_record_id(scene, "scenes")
+    request = {
+        "method": "GET",
+        "endpoint": f"{asp_url}/sessions/scene/{scene_id}"
+    }
+    res = send_auth_request(request)
+    return res.json()
+
+def get_by_project(project):
+    project_id = get_record_id(project, "projects")
+    request = {
+        "method": "GET",
+        "endpoint": f"{asp_url}/sessions/project/{project_id}"
+    }
+    res = send_auth_request(request)
+    return res.json()
+
+def count_sessions(sessions):
+    count = 0
+    for ses in sessions:
+        count += ses["words"]
+    return count
+def list_sessions(args):
+    if args.scene:
+        sessions = get_by_scene(args.scene)
+    elif args.project:
+        sessions = get_by_project(args.project)
+    elif args.date:
+        sessions = get_all_sessions()
+        sessions = get_by_date(args.date, sessions)
+    else:
+        sessions = get_all_sessions()
+    if args.count:
+        word_count = count_sessions(sessions)
+        print(f"\n{word_count} words written in all sessions.")
+    else:
+        print_sessions(sessions)
 
 def parse_list_sessions(session_subparsers):
     list_parser = session_subparsers.add_parser("list")
+    list_parser.add_argument("--date", "-d", default="today", required=False)
+    list_parser.add_argument("--scene", "-s", required=False)
+    list_parser.add_argument("--project", "-p", required=False)
+    list_parser.add_argument("--count", "-c", action="store_true", required=False)
     list_parser.set_defaults(func=list_sessions)
