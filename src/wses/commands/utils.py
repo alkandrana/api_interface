@@ -24,3 +24,8 @@ def format_dates(dates: dict[str, str]):
         print(f"Stop date {valid_dates['stop']} cannot be earlier than start date {valid_dates['start']}")
         sys.exit(1)
 
+def join_date(time, date):
+    timestamp = time
+    if len(time.split('T')) < 2 and len(time.split(' ')) < 2:
+        timestamp = 'T'.join([date, time])
+    return timestamp

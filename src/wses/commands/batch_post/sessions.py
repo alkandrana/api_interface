@@ -1,7 +1,8 @@
 import sys
 from .utils import transfer, batch_from_file
 from ..scenes.scene import get_one_scene
-from ..utils import to_zulu
+from ..utils import to_zulu, join_date
+
 
 def get_scene_id(code):
     res = get_one_scene(code)
@@ -14,7 +15,10 @@ def get_scene_id(code):
 def format_sessions(sessions):
     sessionlist = []
     for ses in sessions:
+        # different between api and file
         scene_id = get_scene_id(ses['scene']['code'])
+        ses['startTime'] = join_date(ses['startTime'], ses['date'])
+        ses['stopTime'] = join_date(ses['stopTime'], ses['date'])
         session = {
             'date': ses['date'],
             'startTime': to_zulu(ses['startTime']),
