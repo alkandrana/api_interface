@@ -1,30 +1,6 @@
 import os, sys
-
+from ...commands import get_status_id, get_project_id
 from ..auth import send_auth_request
-
-def get_project_id(project_code):
-    project_req = {
-        'method': 'GET',
-        'endpoint': f'{os.getenv("BASE_URL")}/projects/code/{project_code}'
-    }
-    res = send_auth_request(project_req)
-    if res.status_code == 404:
-        print("Project does not exist.")
-        sys.exit(1)
-    else:
-        return res.json()['id']
-
-def get_status_id(status):
-    status_req = {
-        'method': 'GET',
-        'endpoint': f'{os.getenv("BASE_URL")}/status/{status}'
-    }
-    res = send_auth_request(status_req)
-    if res.status_code == 404:
-        print("Status is not valid. Make sure it matches one of the following: pending, writing, finished, aborted.")
-        sys.exit(1)
-    else:
-        return res.json()['id']
 
 def build_body(args, project_id):
     body = {
@@ -54,7 +30,7 @@ def post_scene(body):
     return response
 
 def create_scene(args):
-    project_id = get_project_id(args.project)
+    project_id = get_project_id(args.project, f"{os.getenv('BASE_URL')}/projects/code")
     body = build_body(args, project_id)
     response = post_scene(body)
     print(f"Response status: {response.status_code} {response.reason}")

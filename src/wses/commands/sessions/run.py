@@ -57,7 +57,7 @@ def get_next_id():
 def save_local(data):
     path = Path(os.getenv("LOG_FILE"))
     id = get_next_id()
-    csv_str = f"{id},{data['date']},{data['start_time']},{data['stop_time']},{data['words']}{data['scene']},{data['words']},"
+    csv_str = f"{id},{data['date']},{data['start_time']},{data['stop_time']},{data['words']}{data['scene']},{data['words']},\n"
     if path.exists():
         with open(path, "a") as f:
             f.write(csv_str)

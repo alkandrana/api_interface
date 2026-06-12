@@ -13,13 +13,10 @@ dotenv.load_dotenv()
 #       if response unauthorized
 #           get_refresh_token()
 
-def check_server_health():
+def check_server_health(url):
     try:
-        response = requests.get(os.getenv("BASE_URL"), timeout=5)
+        response = requests.get(url, timeout=5)
         return response.status_code < 500
-        # res_dict = vars(response)
-        # for key, value in res_dict.items():
-        #     print(f"{key}: {value}")
     except requests.RequestException:
         return False
 def send_auth_request(request):
@@ -46,32 +43,39 @@ def get_access_token():
         get_refresh_token()
         return kr.get_password("wlogs", "access_token")
 def validate_response(request):
-    print(f"Sending {request['method']} request...")
     # check server
-    if not check_server_health():
+    print("\nChecking server health...")
+    if not check_server_health(os.getenv("BASE_URL")):
         print("The server appears to be down.")
         sys.exit(1)
     # send request
+    print(f"Sending authenticated {request['method']} request...")
     response = send_request(request)
     print("Response status: ", response.status_code)
     # if request succeeded
-    if 200 <= response.status_code < 300 or response.status_code == 404:
+    if 200 <= response.status_code < 300 or 400 <= response.status_code < 500 and response.status_code != 401:
         return response
     # if access token expired
     elif response.status_code == 401:
         print("Access token expired. Refreshing...")
         get_refresh_token()
         response = send_request(request)
-        if 200 <= response.status_code < 300 or response.status_code == 404:
+        if 200 <= response.status_code < 300 or 400 <= response.status_code < 500:
             return response
         else:
             print("Request failed.")
-            print("An error occurred:", response.status_code, response.reason, response.url)
+            print("An error occurred:", response.status_code, response.reason)
+            if response.json():
+                error = response.json()
+                print(f"Error message: {error}")
             sys.exit(1)
     # if request did not succeed
     else:
         print("Non-authorization error.")
         print("An error occurred:", response.status_code, response.reason)
+        if response.json():
+            error = response.json()
+            print(f"Error message: {error}")
         sys.exit(1)
 
 def send_request(request) -> requests.Response | None:

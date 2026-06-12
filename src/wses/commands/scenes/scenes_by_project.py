@@ -1,7 +1,7 @@
 import os, dotenv
 from typing import Any
 from ..auth import send_auth_request
-from ..projects.projects import get_project
+from ..projects.list import get_project
 
 dotenv.load_dotenv()
 def get_scenes(code) -> dict[str, Any]:
