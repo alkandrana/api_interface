@@ -6,6 +6,7 @@ def get_records_from_file(path):
         with open(path) as f:
             reader = csv.DictReader(f)
             records = [row for row in reader]
+        print(f"Retrieved {len(records)} records from {path}")
         return records
     else:
         print("Could not find file.")

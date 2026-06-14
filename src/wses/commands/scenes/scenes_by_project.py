@@ -1,11 +1,11 @@
 import os, dotenv
 from typing import Any
 from ..auth import send_auth_request
-from ..projects.list import get_project
+from ..projects.list import get_project_by_code
 
 dotenv.load_dotenv()
 def get_scenes(code) -> dict[str, Any]:
-    proj = get_project(code)
+    proj = get_project_by_code(code)
     project_id = proj["id"]
     request = {
         "method": "GET",

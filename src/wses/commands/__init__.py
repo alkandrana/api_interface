@@ -59,3 +59,9 @@ def validate_response(res):
         print (f"Error message: {res.json()}")
     else:
         print(f"Something went wrong. Please try again later.")
+
+def print_list_dict(lst):
+    for item in lst:
+        for key, value in item.items():
+            print(f"{key}: {value}")
+        print("\n")

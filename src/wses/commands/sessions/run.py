@@ -87,7 +87,6 @@ def stop(args):
     data = build_session(args.words)
     save_local(data)
     session = convert_to_session(data)
-    print(session)
     post_session(session)
     path = Path(os.getenv("TMP_PATH"))
     path.unlink(missing_ok=True)

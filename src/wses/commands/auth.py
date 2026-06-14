@@ -49,7 +49,7 @@ def validate_response(request):
         print("The server appears to be down.")
         sys.exit(1)
     # send request
-    print(f"Sending authenticated {request['method']} request...")
+    print(f"Initiating authentication process...")
     response = send_request(request)
     print("Response status: ", response.status_code)
     # if request succeeded
@@ -82,6 +82,7 @@ def send_request(request) -> requests.Response | None:
     access_token = get_access_token()
     print("Access token retrieved.")
     request["headers"]["Authorization"] = f"Bearer {access_token}"
+    print(f"Sending authenticated request: {request['endpoint']}")
     if request["method"] == "POST":
         response = requests.post(request["endpoint"],
                                      json=request["payload"],

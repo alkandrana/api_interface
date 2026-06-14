@@ -26,10 +26,18 @@ def view_all(args):
     projects = get_projects()
     print_projects(projects)
 
-def get_project(code):
+def get_project_by_code(code):
     request = {
         "method": "GET",
         "endpoint": f"{os.getenv('BASE_URL')}/projects/code/{code}",
+    }
+    res = send_auth_request(request)
+    return res.json()
+
+def get_project_by_id(pid):
+    request = {
+        "method": "GET",
+        "endpoint": f"{os.getenv('BASE_URL')}/projects/{pid}",
     }
     res = send_auth_request(request)
     return res.json()
@@ -43,15 +51,15 @@ def print_project(project):
     print("\n")
 
 def view_one(args):
-    project = get_project(args.code)
+    project = get_project_by_code(args.code)
     print_project(project)
-def get_project_by_id(request, getter):
-    res = getter(request)
-    if 200 <= res.status_code < 300:
-        return res.json()['code']
-    else:
-        print("An error occurred: ", res.status_code, res.reason)
-        sys.exit(1)
+# def get_project_by_id(request, getter):
+#     res = getter(request)
+#     if 200 <= res.status_code < 300:
+#         return res.json()['code']
+#     else:
+#         print("An error occurred: ", res.status_code, res.reason)
+#         sys.exit(1)
 
 def get_project_code(args):
     project_id = args.id
