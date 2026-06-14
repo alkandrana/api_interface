@@ -3,7 +3,19 @@ import sys
 
 from .. import asp_url, node_url
 from .utils import transfer, batch_from_file
+from ..projects.list import get_project_by_code
 
+
+def get_projects_from_scenes(scenes):
+    booklist = []
+    for scene in scenes:
+        if '-' in scene:
+            proj = scene.split('-')[0]
+            if proj.lower() not in booklist:
+                booklist.append(proj.lower())
+        else:
+            print(f"Project not found for scene: {scene}")
+    return booklist
 
 def format_projects(projects):
     booklist = []

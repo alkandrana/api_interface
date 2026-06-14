@@ -12,8 +12,7 @@ def get_record_id(code, endpoint):
     }
     res = send_auth_request(request)
     if res.status_code == 404:
-        print("No record with that code.")
-        sys.exit(0)
+        return None
     else:
         return res.json()['id']
 

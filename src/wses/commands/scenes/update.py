@@ -16,7 +16,7 @@ def build_patch(args):
     request = {
         "method": "PATCH",
         "endpoint": f"{os.getenv("BASE_URL")}/scenes/{scene_id}",
-        "payload": payload
+        "payload": [payload]
     }
     print(f"Request: {request}")
     return request

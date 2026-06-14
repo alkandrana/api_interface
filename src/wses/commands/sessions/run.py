@@ -57,7 +57,7 @@ def get_next_id():
 def save_local(data):
     path = Path(os.getenv("LOG_FILE"))
     id = get_next_id()
-    csv_str = f"{id},{data['date']},{data['start_time']},{data['stop_time']},{data['words']}{data['scene']},{data['words']},\n"
+    csv_str = f"{id},{data['date']},{data['start_time']},{data['stop_time']},{data['scene']},{data['words']},\n"
     if path.exists():
         with open(path, "a") as f:
             f.write(csv_str)
@@ -85,6 +85,7 @@ def start(args):
         print(f"{key}: {value}")
 def stop(args):
     data = build_session(args.words)
+    print("Session to save: ", data)
     save_local(data)
     session = convert_to_session(data)
     post_session(session)
