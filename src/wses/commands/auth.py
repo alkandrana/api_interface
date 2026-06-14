@@ -87,7 +87,8 @@ def send_request(request) -> requests.Response | None:
         response = requests.post(request["endpoint"],
                                      json=request["payload"],
                                      headers=request["headers"])
-
+    elif request["method"] == "PATCH":
+        response = requests.patch(request["endpoint"], json=request["payload"], headers=request["headers"])
     elif request["method"] == "GET":
         response = requests.get(request["endpoint"], headers=request["headers"])
     else:
