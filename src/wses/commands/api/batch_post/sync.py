@@ -1,6 +1,8 @@
 from pathlib import Path
 import csv
 from ...file.utils import load_config
+from .. import get_record_by_code
+from ...utils import print_dict, print_list
 
 
 # exctract all scenes reference in the writing sessions log file
@@ -15,7 +17,7 @@ def get_scenes_in_log(path):
 
 
 # using the resultant list of scenes, get all projects referenced
-def get_projects_from_scenes(scenes):
+def get_projects_from_scenes(scenes: list[str]):
     booklist = []
     for scene in scenes:
         if "-" in scene:
@@ -27,17 +29,24 @@ def get_projects_from_scenes(scenes):
     return booklist
 
 
-def print_projects():
+def print_projects(_):
     config = load_config()
     log_file = config["log_file"]
     scenes = get_scenes_in_log(log_file)
     books = get_projects_from_scenes(scenes)
+    books_to_add = []
     for b in books:
-        print(b)
+        b_obj = get_record_by_code(b, "projects")
+        if not b_obj:
+            books_to_add.append(b)
+        else:
+            print_dict(b_obj)
+    print("Found {len(books_to_add)} projects to create: ")
+    print_list(books_to_add)
 
 
 def parse_batch_sync(batch_subparsers):
     sync_parser = batch_subparsers.add_parser("sync")
-    sync_parser.add_argument("--book", "-b", store_action=True)
+    sync_parser.add_argument("--book", "-b", action="store_true")
 
-    sync_parser.add_defaults(print_projects)
+    sync_parser.set_defaults(func=print_projects)

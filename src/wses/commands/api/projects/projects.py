@@ -1,7 +1,5 @@
 import os
-from ..auth import send_auth_request
-
-
+from ...auth import send_auth_request
 
 
 def create_project(args):
@@ -18,10 +16,11 @@ def create_project(args):
     request = {
         "method": "POST",
         "endpoint": f"{os.getenv('BASE_URL')}/projects",
-        "payload": body
+        "payload": body,
     }
     response = send_auth_request(request)
     print("Response status: ", response.status_code, response.reason)
+
 
 def parse_create_project(project_subparsers):
     create_parser = project_subparsers.add_parser("create")
@@ -30,3 +29,4 @@ def parse_create_project(project_subparsers):
     create_parser.add_argument("--series", "-s", required=False)
     create_parser.add_argument("--goal", "-g", required=False)
     create_parser.set_defaults(func=create_project)
+

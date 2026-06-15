@@ -1,8 +1,8 @@
 import argparse
-from .commands.projects import parse_project
-from .commands.scenes import parse_scenes
-from .commands.sessions import parse_sessions
-from .commands.batch_post import parse_batch_post
+from .commands.api.projects import parse_project
+from .commands.api.scenes import parse_scenes
+from .commands.api.sessions import parse_sessions
+from .commands.api.batch_post import parse_batch_post
 from .commands.setup.config import parse_config
 
 

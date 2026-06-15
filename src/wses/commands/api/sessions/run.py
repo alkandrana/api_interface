@@ -1,20 +1,20 @@
 import csv
 from datetime import datetime
 from pathlib import Path
-from ..utils import to_zulu
+from ...utils import to_zulu
 from .create_session import get_scene_id, post_session
 import sys, os, json
+
 
 def initialize(scene):
     session_data = {
         "date": datetime.strftime(datetime.today(), "%Y-%m-%d"),
-        "start_time": datetime.strftime(
-            datetime.now(),
-            '%Y-%m-%dT%H:%M:%S'
-        ),
-        "scene": scene
+        "start_time": datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%S"),
+        "scene": scene,
     }
     return session_data
+
+
 def tmp_save(data):
     path = Path(os.getenv("TMP_PATH"))
     if path.exists():
@@ -31,17 +31,13 @@ def build_session(words):
         with open(path, "r") as f:
             data = json.load(f)
         if not "stop_time" in data:
-            data["stop_time"] = (
-                    datetime.strftime(
-                        datetime.now(),
-                        "%Y-%m-%dT%H:%M:%S"
-                    )
-                )
+            data["stop_time"] = datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%S")
         data["words"] = words
     else:
         print("No session running.")
         sys.exit(1)
     return data
+
 
 def get_next_id():
     path = Path(os.getenv("LOG_FILE"))
@@ -54,6 +50,8 @@ def get_next_id():
     else:
         print("Log file not found.")
         sys.exit(1)
+
+
 def save_local(data):
     path = Path(os.getenv("LOG_FILE"))
     id = get_next_id()
@@ -66,6 +64,7 @@ def save_local(data):
         print("Log file not found.")
         sys.exit(1)
 
+
 def convert_to_session(data):
     code = data["scene"].split("-")[1]
     scene_id = get_scene_id(code)
@@ -74,8 +73,9 @@ def convert_to_session(data):
         "startTime": to_zulu(data["start_time"]),
         "stopTime": to_zulu(data["stop_time"]),
         "words": data["words"],
-        "sceneId": scene_id
+        "sceneId": scene_id,
     }
+
 
 def start(args):
     data = initialize(args.scene)
@@ -83,6 +83,8 @@ def start(args):
     print("Session started: ")
     for key, value in data.items():
         print(f"{key}: {value}")
+
+
 def stop(args):
     data = build_session(args.words)
     print("Session to save: ", data)
@@ -92,6 +94,7 @@ def stop(args):
     path = Path(os.getenv("TMP_PATH"))
     path.unlink(missing_ok=True)
     print("Session saved")
+
 
 def cancel(_):
     path = Path(os.getenv("TMP_PATH"))
@@ -104,6 +107,7 @@ def cancel(_):
             print(f"{key}: {value}")
     else:
         print("No session running.")
+
 
 def parse_run_session(session_subparsers):
     run_parser = session_subparsers.add_parser("run")

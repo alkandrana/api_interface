@@ -3,7 +3,7 @@ import os, json, sys
 from ..file.search import find_file
 
 
-def state_path() -> Path:
+def get_store_path() -> Path:
     # Prefer XDG_STATE_HOME; fallback to ~/.local/state; then ~/.wlogs if needed.
     xdg_state = os.getenv("XDG_STATE_HOME")
     if xdg_state:
@@ -16,10 +16,10 @@ def state_path() -> Path:
     return path
 
 
-def set_log_file():
+def set_log_file(_):
     log = input("Enter the name of your writing sessions log file: ")
     log_path = find_file(log)
-    config_file = state_path() / "config.json"
+    config_file = get_store_path() / "config.json"
     if log_path.exists():
         with open(config_file, "r") as f:
             config = json.load(f)

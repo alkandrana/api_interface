@@ -14,7 +14,8 @@ dependencies = [
     "more-itertools==11.1.0",
     "python-dotenv==1.2.2",
     "requests==2.34.2",
-    "urllib3==2.7.0"
+    "urllib3==2.7.0",
+    "pyyaml===6.0.3"
 ]
 
 [project.scripts]

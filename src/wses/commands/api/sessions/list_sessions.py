@@ -1,16 +1,13 @@
 import sys
 from datetime import datetime
 
-from .. import print_list_dict
-from ..auth import send_auth_request
-from ...commands import get_record_id, asp_url
+from ...auth import send_auth_request
+from ... import get_record_id, asp_url
 from ..projects.list import get_project_by_id
 
+
 def get_all_sessions():
-    request = {
-        "method": "GET",
-        "endpoint": f"{asp_url}/sessions"
-    }
+    request = {"method": "GET", "endpoint": f"{asp_url}/sessions"}
     res = send_auth_request(request)
     sessions = res.json()
     sessions.sort(key=lambda x: datetime.fromisoformat(x["startTime"]))
@@ -36,6 +33,7 @@ def print_sessions(sessions, wpm=False):
                 print(f"{key}: {value}")
         print("\n")
 
+
 def build_session_title(session):
     project = session["scene"]["project"]["code"]
     scene = session["scene"]["code"]
@@ -44,33 +42,33 @@ def build_session_title(session):
     title = f"{duration} minute session in {project} {scene} on {date}"
     return title
 
+
 def get_by_date(date, sessions):
-    filtered = [s for s in sessions if s['date'].startswith(date)]
+    filtered = [s for s in sessions if s["date"].startswith(date)]
     return filtered
+
 
 def get_by_scene(scene):
     scene_id = get_record_id(scene, "scenes")
-    request = {
-        "method": "GET",
-        "endpoint": f"{asp_url}/sessions/scene/{scene_id}"
-    }
+    request = {"method": "GET", "endpoint": f"{asp_url}/sessions/scene/{scene_id}"}
     res = send_auth_request(request)
     return res.json()
 
+
 def get_by_project(project):
     project_id = get_record_id(project, "projects")
-    request = {
-        "method": "GET",
-        "endpoint": f"{asp_url}/sessions/project/{project_id}"
-    }
+    request = {"method": "GET", "endpoint": f"{asp_url}/sessions/project/{project_id}"}
     res = send_auth_request(request)
     return res.json()
+
 
 def count_sessions(sessions):
     count = 0
     for ses in sessions:
         count += ses["words"]
     return count
+
+
 def calc_wpm(session):
     if not session["startTime"] or not session["stopTime"]:
         print("Wpm cannot be calculated: missing time data")
@@ -80,6 +78,8 @@ def calc_wpm(session):
     stop = datetime.fromisoformat(session["stopTime"])
     duration = (stop - start).total_seconds() / 60
     return round(words / duration, 2)
+
+
 def list_sessions(args):
     if args.scene:
         sessions = get_by_scene(args.scene)
@@ -101,6 +101,7 @@ def list_sessions(args):
     else:
         print_sessions(sessions, args.wpm)
 
+
 def parse_list_sessions(session_subparsers):
     list_parser = session_subparsers.add_parser("list")
     list_parser.add_argument("--today", "-t", action="store_true")
@@ -108,5 +109,6 @@ def parse_list_sessions(session_subparsers):
     list_parser.add_argument("--scene", "-s", required=False)
     list_parser.add_argument("--project", "-p", required=False)
     list_parser.add_argument("--count", "-c", action="store_true", required=False)
-    list_parser.add_argument('--wpm', "-w", action="store_true", required=False)
+    list_parser.add_argument("--wpm", "-w", action="store_true", required=False)
     list_parser.set_defaults(func=list_sessions)
+

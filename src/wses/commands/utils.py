@@ -1,14 +1,19 @@
 import os, sys, json
+from typing import Any
 from pathlib import Path
 from datetime import datetime, timezone
+
+
 def to_zulu(date):
     dt = datetime.fromisoformat(date)
     dtu = dt.astimezone(timezone.utc)
-    return dtu.strftime('%Y-%m-%dT%H:%M:%SZ')
+    return dtu.strftime("%Y-%m-%dT%H:%M:%SZ")
+
 
 def to_local(date_str):
     iso = datetime.fromisoformat(date_str)
     return str(iso.astimezone())
+
 
 def format_dates(dates: dict[str, str]):
     valid_dates = {}
@@ -17,15 +22,30 @@ def format_dates(dates: dict[str, str]):
             date = datetime.fromisoformat(value)
             valid_dates[key] = date
         except ValueError:
-            print(f"Date {value} is not a valid date. "
-                  f"Please check your date inputs for valid ISO formatting: YYYY-MM-DD HH:MM:SS")
+            print(
+                f"Date {value} is not a valid date. "
+                f"Please check your date inputs for valid ISO formatting: YYYY-MM-DD HH:MM:SS"
+            )
             sys.exit(1)
-    if valid_dates['stop'] < valid_dates['start']:
-        print(f"Stop date {valid_dates['stop']} cannot be earlier than start date {valid_dates['start']}")
+    if valid_dates["stop"] < valid_dates["start"]:
+        print(
+            f"Stop date {valid_dates['stop']} cannot be earlier than start date {valid_dates['start']}"
+        )
         sys.exit(1)
+
 
 def join_date(time, date):
     timestamp = time
-    if len(time.split('T')) < 2 and len(time.split(' ')) < 2:
-        timestamp = 'T'.join([date, time])
+    if len(time.split("T")) < 2 and len(time.split(" ")) < 2:
+        timestamp = "T".join([date, time])
     return timestamp
+
+
+def print_list(lst: list[Any]):
+    for it in lst:
+        print(it)
+
+
+def print_dict(map: dict[str, Any]):
+    for key, value in map.items():
+        print(f"{key}: {value}")

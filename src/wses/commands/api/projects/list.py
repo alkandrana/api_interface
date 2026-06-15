@@ -1,7 +1,9 @@
 import sys, os, dotenv
-from ..auth import send_auth_request
+from ...auth import send_auth_request
+from ... import asp_url, node_url, send_request
+
 dotenv.load_dotenv()
-from ...commands import asp_url, node_url, send_request
+
 
 def get_projects():
     request = {
@@ -22,9 +24,11 @@ def print_projects(projects):
                 print(f"{key}: {value['userName']}")
         print("\n")
 
+
 def view_all(args):
     projects = get_projects()
     print_projects(projects)
+
 
 def get_project_by_code(code):
     request = {
@@ -33,6 +37,7 @@ def get_project_by_code(code):
     }
     res = send_auth_request(request)
     return res.json()
+
 
 def get_project_by_id(pid):
     request = {
@@ -50,9 +55,12 @@ def print_project(project):
             print(f"{key}: {value}")
     print("\n")
 
+
 def view_one(args):
     project = get_project_by_code(args.code)
     print_project(project)
+
+
 # def get_project_by_id(request, getter):
 #     res = getter(request)
 #     if 200 <= res.status_code < 300:
@@ -60,6 +68,7 @@ def view_one(args):
 #     else:
 #         print("An error occurred: ", res.status_code, res.reason)
 #         sys.exit(1)
+
 
 def get_project_code(args):
     project_id = args.id
@@ -70,10 +79,11 @@ def get_project_code(args):
     code = get_project_by_id(request, send_request)
     print(f"Project {project_id}: {code}")
 
+
 def parse_project_list(project_subparsers):
-    list_parser = project_subparsers.add_parser('list')
-    list_subparsers = list_parser.add_subparsers(dest='sub2command')
-    code_parser = list_subparsers.add_parser('code')
+    list_parser = project_subparsers.add_parser("list")
+    list_subparsers = list_parser.add_subparsers(dest="sub2command")
+    code_parser = list_subparsers.add_parser("code")
     code_parser.add_argument("--id", required=True)
     code_parser.set_defaults(func=get_project_code)
 
