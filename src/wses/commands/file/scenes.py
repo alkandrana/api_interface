@@ -6,10 +6,13 @@ def load_yaml_header(path):
         with open(path, 'r') as f:
             content = f.read()
         parts = content.split('---')
-        header = parts[1].strip()
-        header = yaml.safe_load(header)
+        if len(parts) < 2:
+            header = {}
+        else:
+            header = parts[1].strip()
+            header = yaml.safe_load(header)
     else:
-        header = None
+        header = {}
     return header
 
 def get_scenes_in_log(path):

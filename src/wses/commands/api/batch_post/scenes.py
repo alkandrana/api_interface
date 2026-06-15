@@ -9,12 +9,26 @@ from ..projects.list import get_project_by_id
 
 dotenv.load_dotenv()
 
+def translate_status(status):
+    if status == "written":
+        status_id = get_status_id("finished")
+    elif status == "draft":
+        status_id = get_status_id("writing")
+    elif status == "archive":
+        status_id = get_status_id("aborted")
+    else:
+        status_id = get_status_id(status)
+    return status_id
 
 def build_scene_from_file(scene_header, project_id):
-    status_id = get_status_id("writing")
+    status_id = translate_status(scene_header['status'])
+    if status_id == 0:
+        status_id = get_status_id("pending")
+    code_parts = scene_header["scene_id"].split("-")
+    scene_code = code_parts[1] if len(code_parts) == 2 else code_parts[0]
     try:
         scene = {
-            "code": scene_header["scene_id"].split("-")[1],
+            "code": scene_code,
             "sequence": scene_header["scene_order"],
             "name": scene_header["scene_name"],
             "words": scene_header["word_count"],
@@ -25,24 +39,35 @@ def build_scene_from_file(scene_header, project_id):
         return scene
     except KeyError:
         print(f"Malformed scene header for scene: {scene_header}")
-        sys.exit(1)
+        return {}
 
 
 def get_scene_details(book_code):
     # check whether project exists
     project_id = get_record_id(book_code, "projects")
     if not project_id:
-        print("Project doesn't exist yet.")
+        print("Project doesn't exist yet. Create it with 'wlogs projects create', or create all missing projects with 'wlogs batch projects -s file'")
         sys.exit(1)
-    path = find_file(book_code, full_name=True)
+    print(f"\nLocating repo for project {book_code}")
+    path = find_file(book_code.upper())
     scenes_path = Path(path) / "manuscript" / "scenes"
+    print(scenes_path)
+    if not scenes_path.exists():
+        print("Malformed project repo. Makes sure your project tree follows the pattern: root/books/<book_ID>/manuscript/scenes")
+        sys.exit(1)
     scenes = [p for p in fast_search(".md", scenes_path)]
     batch = []
     for path in scenes:
         print(f"\nGetting post details for scene: {path.name}")
         header = load_yaml_header(path)
-        payload = build_scene_from_file(header, project_id)
-        batch.append(payload)
+        if not isinstance(header, dict) or not header:
+            print(f"Malformed scene header or header not present: {path}. Skipping...")
+        else:
+            payload = build_scene_from_file(header, project_id)
+            if not payload:
+                print("Scene details could not be determined. Skipping scene...")
+            else:
+                batch.append(payload)
     batch.sort(key=lambda x: x["sequence"])
     return batch
 

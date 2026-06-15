@@ -37,6 +37,7 @@ def find_file(
         for i, option in enumerate(options):
             print(f"\t{i + 1}. {option}")
         choice = input("\tSelect an option: ")
+        choice = options[int(choice) - 1]
     else:
         print(f"No files match your search criteria: {target_filename}")
         return None

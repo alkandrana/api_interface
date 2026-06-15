@@ -30,7 +30,7 @@ def get_status_id(status):
         print(
             "Status is not valid. Make sure it matches one of the following: pending, writing, finished, aborted."
         )
-        sys.exit(1)
+        return 0
     else:
         return res.json()["id"]
 
@@ -67,6 +67,7 @@ def validate_response(res):
 
 
 def print_list_dict(lst):
+    print("\n")
     for item in lst:
         for key, value in item.items():
             print(f"{key}: {value}")

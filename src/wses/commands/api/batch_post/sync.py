@@ -4,6 +4,8 @@ from pathlib import Path
 import csv
 from typing import Any
 
+from .scenes import get_scene_details
+from .utils import post_record
 from ... import print_list_dict
 from ...file.search import find_file
 from ...file.utils import load_config
@@ -12,10 +14,11 @@ from ...utils import print_dict, print_list
 
 
 # exctract all scenes reference in the writing sessions log file
-def get_scenes_in_log(path):
+def get_scenes_in_log():
     scenes = []
-    if Path(path).exists():
-        with open(path, "r") as f:
+    log_file = load_config()["log_file"]
+    if Path(log_file).exists():
+        with open(log_file, "r") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 scenes.append(row["scene_id"])
@@ -23,9 +26,10 @@ def get_scenes_in_log(path):
 
 
 # using the resultant list of scenes, get all projects referenced
-def get_projects_from_scenes(scenes: list[str]):
+def get_projects_from_log() -> list[str]:
+    scene_codes = get_scenes_in_log()
     booklist = []
-    for scene in scenes:
+    for scene in scene_codes:
         if "-" in scene:
             proj = scene.split("-")[0]
             if proj.lower() not in booklist:
@@ -44,15 +48,6 @@ def sync_projects(book_codes: list[str]):
         else:
             book_records.append(res.json())
     return {"remote": book_records, "local": books_to_add}
-
-def get_projects_from_log():
-    log_file = load_config()["log_file"]
-    if not Path(log_file).exists():
-        print("Log file could not be found. Update config with 'wlogs config log'.")
-        sys.exit(1)
-    scenes = get_scenes_in_log(log_file)
-    books = get_projects_from_scenes(scenes)
-    return books
 
 
 def get_project_from_repo(code: str):
@@ -79,6 +74,18 @@ def get_unsaved_projects(local_codes: list[str], local_projects: list[dict[str,A
     codes = [c.upper() for c in local_codes if c.upper() not in local_keys]
     return codes
 
+def sync_scenes(_):
+    book_codes = get_projects_from_log()
+    for code in book_codes:
+        code = code.upper()
+        print(f"Getting scenes for project {code}")
+        scenes = get_scene_details(code)
+        print_list_dict(scenes)
+        # print("Posting scenes to API: ")
+        # for scene in scenes:
+        #     print(f"\t{scene}")
+        #     post_record(scene, "scenes")
+
 def print_projects(_):
     project_codes = get_projects_from_log()
     project_status = sync_projects(project_codes)
@@ -98,3 +105,5 @@ def parse_batch_sync(batch_subparsers):
     sync_subparsers = sync_parser.add_subparsers(dest="sub2command")
     project_parser = sync_subparsers.add_parser("projects")
     project_parser.set_defaults(func=print_projects)
+    scenes_parser = sync_subparsers.add_parser("scenes")
+    scenes_parser.set_defaults(func=sync_scenes)
