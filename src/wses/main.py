@@ -16,7 +16,6 @@ def main():
     parse_batch_post(subparsers)
     args = parser.parse_args()
     args.func(args)
-    # print(args)
 
 
 if __name__ == "__main__":

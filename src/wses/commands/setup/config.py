@@ -1,6 +1,7 @@
 from pathlib import Path
 import os, json, sys
 from ..file.search import find_file
+from ..auth import check_server_health
 
 
 def get_store_path() -> Path:
@@ -21,9 +22,13 @@ def set_log_file(_):
     log_path = find_file(log)
     config_file = get_store_path() / "config.json"
     if log_path.exists():
-        with open(config_file, "r") as f:
-            config = json.load(f)
-        config["log_file"] = log
+        if config_file.exists():
+            with open(config_file, "r") as f:
+                config = json.load(f)
+            config["log_file"] = str(log_path)
+        else:
+            config = {"log_file": str(log_path)}
+        print(config)
         with open(config_file, "w") as f:
             json.dump(config, f)
         print(f"Log path written to {config_file}")
@@ -31,9 +36,29 @@ def set_log_file(_):
         print("Log file could not be found. Check your spelling and try again.")
         sys.exit(1)
 
+def set_api_url(_):
+    url = input("Enter the base URL for your API (e.g. http://api.example.com): ")
+    if check_server_health(url):
+        print("API URL verified")
+        config_file = get_store_path() / "config.json"
+        if config_file.exists():
+            with open(config_file, "r") as f:
+                config = json.load(f)
+            config["api_url"] = url
+        else:
+            config = {"api_url": url}
+        with open(config_file, "w") as f:
+            json.dump(config, f)
+        print(f"API URL written to {config_file}")
+    else:
+        print("Server is down or url is incorrect. Check your spelling or try again later.")
 
 def parse_config(subparsers):
     config_parser = subparsers.add_parser("config")
     config_subparsers = config_parser.add_subparsers(dest="subcommand")
+
     log_parser = config_subparsers.add_parser("log")
     log_parser.set_defaults(func=set_log_file)
+
+    api_parser = config_subparsers.add_parser("api")
+    api_parser.set_defaults(func=set_api_url)

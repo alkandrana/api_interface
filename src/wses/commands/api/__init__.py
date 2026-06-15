@@ -11,8 +11,8 @@ def get_record_by_code(code, endpoint):
         "endpoint": f"{os.getenv('BASE_URL')}/{endpoint}/code/{code}",
     }
     res = send_auth_request(request)
-    if 200 <= res.status_code < 300:
-        return res.json()
+    if 200 <= res.status_code < 300 or res.status_code == 404:
+        return res
     else:
         print("An error occurred: ", res.status_code, res.reason, res.json())
         sys.exit(1)

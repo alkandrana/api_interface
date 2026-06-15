@@ -48,4 +48,4 @@ def print_list(lst: list[Any]):
 
 def print_dict(map: dict[str, Any]):
     for key, value in map.items():
-        print(f"{key}: {value}")
+        print(f"\n{key}: {value}")

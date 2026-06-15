@@ -39,5 +39,6 @@ def find_file(
         choice = input("\tSelect an option: ")
     else:
         print(f"No files match your search criteria: {target_filename}")
-        sys.exit(1)
+        return None
+        # sys.exit(1)
     return Path(choice)
