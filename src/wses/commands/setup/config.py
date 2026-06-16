@@ -1,20 +1,8 @@
 from pathlib import Path
 import os, json, sys
 from ..file.search import find_file
+from ... import get_store_path
 from ..auth import check_server_health
-
-
-def get_store_path() -> Path:
-    # Prefer XDG_STATE_HOME; fallback to ~/.local/state; then ~/.wlogs if needed.
-    xdg_state = os.getenv("XDG_STATE_HOME")
-    if xdg_state:
-        root = Path(xdg_state)
-    else:
-        root = Path.home() / ".local" / "state"
-
-    path = root / "wlogs"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    return path
 
 
 def set_log_file(_):
@@ -36,6 +24,7 @@ def set_log_file(_):
         print("Log file could not be found. Check your spelling and try again.")
         sys.exit(1)
 
+
 def set_api_url(_):
     url = input("Enter the base URL for your API (e.g. http://api.example.com): ")
     if check_server_health(url):
@@ -51,7 +40,10 @@ def set_api_url(_):
             json.dump(config, f)
         print(f"API URL written to {config_file}")
     else:
-        print("Server is down or url is incorrect. Check your spelling or try again later.")
+        print(
+            "Server is down or url is incorrect. Check your spelling or try again later."
+        )
+
 
 def parse_config(subparsers):
     config_parser = subparsers.add_parser("config")

@@ -8,7 +8,7 @@ from .scenes import get_scene_details
 from .utils import post_record
 from ... import print_list_dict
 from ...file.search import find_file
-from ...file.utils import load_config
+from wses import load_config
 from .. import get_record_by_code
 from ...utils import print_dict, print_list
 
@@ -38,6 +38,7 @@ def get_projects_from_log() -> list[str]:
             print(f"Project not found for scene: {scene}")
     return booklist
 
+
 def sync_projects(book_codes: list[str]):
     books_to_add = []
     book_records = []
@@ -55,10 +56,13 @@ def get_project_from_repo(code: str):
     if path:
         specs = path / "novel.json"
         if specs.exists():
-            with open(specs, "r") as f:
-                novel = json.load(f)
+            with open(specs, "r", encoding="utf-8-sig") as f:
+                novel = json.load(
+                    f,
+                )
             return novel
     return code.upper()
+
 
 def get_local_project_details(project_codes: list[str]):
     local_projects = []
@@ -69,10 +73,14 @@ def get_local_project_details(project_codes: list[str]):
             local_projects.append(project)
     return local_projects
 
-def get_unsaved_projects(local_codes: list[str], local_projects: list[dict[str,Any]]) -> list[str]:
+
+def get_unsaved_projects(
+    local_codes: list[str], local_projects: list[dict[str, Any]]
+) -> list[str]:
     local_keys = [p["id"] for p in local_projects]
     codes = [c.upper() for c in local_codes if c.upper() not in local_keys]
     return codes
+
 
 def sync_scenes(_):
     book_codes = get_projects_from_log()
@@ -86,6 +94,7 @@ def sync_scenes(_):
         #     print(f"\t{scene}")
         #     post_record(scene, "scenes")
 
+
 def print_projects(_):
     project_codes = get_projects_from_log()
     project_status = sync_projects(project_codes)
@@ -95,10 +104,11 @@ def print_projects(_):
     print_list_dict(remote_projects)
     print("Projects existing locally:")
     print_list_dict(local_projects)
-    unsaved = get_unsaved_projects(project_status['local'], local_projects)
+    unsaved = get_unsaved_projects(project_status["local"], local_projects)
     if len(unsaved) > 0:
         print("Projects for which local details cannot be found:")
         print_list(unsaved)
+
 
 def parse_batch_sync(batch_subparsers):
     sync_parser = batch_subparsers.add_parser("sync")

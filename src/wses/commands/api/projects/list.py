@@ -1,4 +1,6 @@
 import sys, os, dotenv
+
+from wses import load_config
 from ...auth import send_auth_request
 from ... import asp_url, node_url, send_request
 
@@ -8,10 +10,18 @@ dotenv.load_dotenv()
 def get_projects():
     request = {
         "method": "GET",
-        "endpoint": f"{os.getenv('BASE_URL')}/projects",
+        "endpoint": f"{load_config()['api_url']}/projects",
     }
-    records = send_auth_request(request)
-    return records
+    res = send_auth_request(request)
+    if 200 <= res.status_code < 300:
+        return res.json()
+    else:
+        print(
+            "There was a problem fetching records: ",
+            res.status_code,
+            res.reason,
+            res.json(),
+        )
 
 
 def print_projects(projects):
