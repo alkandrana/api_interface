@@ -55,14 +55,11 @@ def get_access_token():
 
 def validate_response(request):
     # check server
-    print("\nChecking server health...")
     if not check_server_health(load_config()["api_url"]):
         print("The server appears to be down.")
         sys.exit(1)
     # send request
-    print("Initiating authentication process...")
     response = send_request(request)
-    print("Response status: ", response.status_code)
     # if request succeeded
     if (
         200 <= response.status_code < 300
@@ -72,7 +69,6 @@ def validate_response(request):
         return response
     # if access token expired
     elif response.status_code == 401:
-        print("Access token expired. Refreshing...")
         get_refresh_token()
         response = send_request(request)
         if 200 <= response.status_code < 300 or 400 <= response.status_code < 500:
@@ -96,9 +92,8 @@ def validate_response(request):
 
 def send_request(request) -> requests.Response | None:
     access_token = get_access_token()
-    print("Access token retrieved.")
     request["headers"]["Authorization"] = f"Bearer {access_token}"
-    print(f"Sending authenticated request: {request['endpoint']}")
+    # print(f"Sending authenticated request: {request['endpoint']}")
     if request["method"] == "POST":
         response = requests.post(
             request["endpoint"], json=request["payload"], headers=request["headers"]

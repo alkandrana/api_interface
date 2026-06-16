@@ -26,6 +26,10 @@ def build_scene_from_file(scene_header, project_id):
         status_id = get_status_id("pending")
     code_parts = scene_header["scene_id"].split("-")
     scene_code = code_parts[1] if len(code_parts) == 2 else code_parts[0]
+    plotline = ""
+    for key in scene_header.keys():
+        if "protagonist" in key:
+            plotline = scene_header[key]
     try:
         scene = {
             "code": scene_code,
@@ -33,7 +37,7 @@ def build_scene_from_file(scene_header, project_id):
             "name": scene_header["scene_name"],
             "words": scene_header["word_count"],
             "statusId": status_id,
-            "plotline": scene_header["protagonist"],
+            "plotline": plotline,
             "projectId": project_id,
         }
         return scene

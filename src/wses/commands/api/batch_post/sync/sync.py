@@ -4,39 +4,13 @@ from pathlib import Path
 import csv
 from typing import Any
 
-from .scenes import get_scene_details
-from .utils import post_record
-from ... import print_list_dict
-from ...file.search import find_file
-from wses import load_config
-from .. import get_record_by_code
-from ...utils import print_dict, print_list
+from wses.commands.api.batch_post.scenes import get_scene_details
+from wses.commands.api.batch_post.utils import post_record
+from wses.commands import print_list_dict
+from wses.commands.file.search import find_file
 
-
-# exctract all scenes reference in the writing sessions log file
-def get_scenes_in_log():
-    scenes = []
-    log_file = load_config()["log_file"]
-    if Path(log_file).exists():
-        with open(log_file, "r") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                scenes.append(row["scene_id"])
-    return scenes
-
-
-# using the resultant list of scenes, get all projects referenced
-def get_projects_from_log() -> list[str]:
-    scene_codes = get_scenes_in_log()
-    booklist = []
-    for scene in scene_codes:
-        if "-" in scene:
-            proj = scene.split("-")[0]
-            if proj.lower() not in booklist:
-                booklist.append(proj.lower())
-        else:
-            print(f"Project not found for scene: {scene}")
-    return booklist
+from wses.commands.api import get_record_by_code
+from wses.commands.utils import print_dict, print_list
 
 
 def sync_projects(book_codes: list[str]):
@@ -82,19 +56,25 @@ def get_unsaved_projects(
     return codes
 
 
-def sync_scenes(_):
-    book_codes = get_projects_from_log()
-    for code in book_codes:
-        code = code.upper()
-        print(f"Getting scenes for project {code}")
-        scenes = get_scene_details(code)
-        print_list_dict(scenes)
-        # print("Posting scenes to API: ")
-        # for scene in scenes:
-        #     print(f"\t{scene}")
-        #     post_record(scene, "scenes")
+def sync_scenes(args):
+    if args.code:
+        scenes = list_scenes_in_project(args.code)
+        sync_scenes_in_project(scenes)
+    else:
+        book_codes = get_projects_from_log()
+        for code in book_codes:
+            sync_scenes_in_project(code)
 
-
+def list_scenes_in_project(code: str):
+    code = code.upper()
+    print(f"Getting scenes for project {code}")
+    scenes = get_scene_details(code)
+    print_list_dict(scenes)
+    return scenes
+def sync_scenes_in_project(scenes):
+    print("Posting scenes to API: ")
+    for scene in scenes:
+        post_record(scene, "scenes")
 def print_projects(_):
     project_codes = get_projects_from_log()
     project_status = sync_projects(project_codes)
@@ -110,10 +90,9 @@ def print_projects(_):
         print_list(unsaved)
 
 
-def parse_batch_sync(batch_subparsers):
-    sync_parser = batch_subparsers.add_parser("sync")
-    sync_subparsers = sync_parser.add_subparsers(dest="sub2command")
+def parse_batch_sync(sync_subparsers):
     project_parser = sync_subparsers.add_parser("projects")
     project_parser.set_defaults(func=print_projects)
     scenes_parser = sync_subparsers.add_parser("scenes")
+    scenes_parser.add_argument("--code", "-c", required=False)
     scenes_parser.set_defaults(func=sync_scenes)

@@ -19,3 +19,16 @@ def get_record_by_code(code, endpoint):
     else:
         print("An error occurred: ", res.status_code, res.reason, res.json())
         sys.exit(1)
+
+def check_record_exists(code: str, endpoint: str):
+    request = {
+        "method": "GET",
+        "endpoint": f"{load_config()['api_url']}/{endpoint}/code/{code}",
+    }
+    res = send_auth_request(request)
+    if 200 <= res.status_code < 300:
+        return True
+    elif res.status_code == 404:
+        return False
+    else:
+        print("An error occurred: ", res.status_code, res.reason, res.json())

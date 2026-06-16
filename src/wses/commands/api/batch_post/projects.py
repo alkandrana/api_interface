@@ -1,10 +1,8 @@
 import os
 import sys
 from typing import Any
-
-from .sync import (
-    get_projects_from_log,
-    get_scenes_in_log,
+from .sync.list import get_projects_from_log, get_scenes_in_log
+from .sync.sync import (
     sync_projects,
     get_local_project_details,
     get_unsaved_projects,
@@ -16,17 +14,17 @@ from ...auth import check_server_health
 from wses import load_config
 
 
-def get_projects_from_log():
-    scene_codes = get_scenes_in_log()
-    booklist = []
-    for scene in scene_codes:
-        if "-" in scene:
-            proj = scene.split("-")[0]
-            if proj.lower() not in booklist:
-                booklist.append(proj.lower())
-        else:
-            print(f"Project not found for scene: {scene}")
-    return booklist
+# def get_projects_from_log():
+#     scene_codes = get_scenes_in_log()
+#     booklist = []
+#     for scene in scene_codes:
+#         if "-" in scene:
+#             proj = scene.split("-")[0]
+#             if proj.lower() not in booklist:
+#                 booklist.append(proj.lower())
+#         else:
+#             print(f"Project not found for scene: {scene}")
+#     return booklist
 
 
 def create_project_interactive(code):
