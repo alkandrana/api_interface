@@ -1,38 +1,14 @@
 import os, sys, requests
-from .auth import send_auth_request
+from typing import Any
+
+from wses import load_config
+from wses.library.api.auth import send_auth_request
 from dotenv import load_dotenv
 
 load_dotenv()
 
 asp_url = os.getenv("BASE_URL")
 node_url = "http://localhost:3000"
-
-
-def get_record_id(code, endpoint):
-    request = {
-        "method": "GET",
-        "endpoint": f"{asp_url}/{endpoint}/code/{code}",
-    }
-    res = send_auth_request(request)
-    if res.status_code == 404:
-        return None
-    else:
-        return res.json()["id"]
-
-
-def get_status_id(status):
-    status_req = {
-        "method": "GET",
-        "endpoint": f"{os.getenv('BASE_URL')}/status/{status}",
-    }
-    res = send_auth_request(status_req)
-    if res.status_code == 404:
-        print(
-            "Status is not valid. Make sure it matches one of the following: pending, writing, finished, aborted."
-        )
-        return 0
-    else:
-        return res.json()["id"]
 
 
 def get_project_id(project_code, endpoint):
@@ -66,10 +42,4 @@ def validate_response(res):
         print(f"Something went wrong. Please try again later.")
 
 
-def print_list_dict(lst):
-    print("\n")
-    for item in lst:
-        for key, value in item.items():
-            print(f"{key}: {value}")
-        print("\n")
 

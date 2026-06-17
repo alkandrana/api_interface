@@ -1,8 +1,7 @@
-from pathlib import Path
-import os, json, sys
-from ..file.search import find_file
+import json, sys
+from wses.library.file.search import find_file
 from ... import get_store_path
-from ..auth import check_server_health
+from wses.library.api.auth import check_server_health
 
 
 def set_log_file(_):
