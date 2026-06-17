@@ -5,6 +5,7 @@ from wses.library.api.sessions import parse_sessions
 from .commands.setup.config import parse_config
 from .commands.batch import parse_batch_scenes
 from .commands.plot import parse_plotter
+from .commands.update_project import parse_update_project
 from wses.library.file import parse_file
 from wses.library.api.auth import parse_auth
 
@@ -20,6 +21,7 @@ def main():
     parse_batch_scenes(subparsers)
     parse_file(subparsers)
     parse_plotter(subparsers)
+    parse_update_project(subparsers)
     args = parser.parse_args()
     args.func(args)
 

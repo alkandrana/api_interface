@@ -63,3 +63,11 @@ def print_list_dict(lst):
         for key, value in item.items():
             print(f"{key}: {value}")
         print("\n")
+
+def load_json(path: Path):
+    if path.exists():
+        with open(path, "r") as f:
+            data = json.load(f)
+    else:
+        data = {}
+    return data

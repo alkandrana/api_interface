@@ -1,6 +1,7 @@
 from pathlib import Path
 import yaml, csv
-
+from .search import find_file
+import sys
 from wses.library.file.search import fast_search
 
 
@@ -31,3 +32,11 @@ def get_next_scene_num(path):
     scene_paths = [p for p in fast_search(".md", path)]
     next_sequence = len(scene_paths)
     return next_sequence
+
+def get_scene_path(scene):
+    path = find_file(scene)
+    if not path or not path.exists():
+        print("Could not find scene")
+        sys.exit(1)
+    else:
+        return path

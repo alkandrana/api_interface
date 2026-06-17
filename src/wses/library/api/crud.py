@@ -51,3 +51,12 @@ def get_status_values() -> list[dict[str, Any]]:
         sys.exit(1)
     else:
         return res.json()
+
+def get_patch_payload(value, prop):
+    payload = [
+        {
+            "op": "replace",
+            "path": prop,
+            "value": value
+        }]
+    return payload

@@ -1,4 +1,4 @@
-from .projects import parse_file_project
+from .projects.new_project import parse_file_project
 
 
 def parse_file(subparsers):

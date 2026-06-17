@@ -1,5 +1,5 @@
 from pathlib import Path
-from .search import find_file
+from wses.library.file.search import find_file
 import sys
 import json
 
