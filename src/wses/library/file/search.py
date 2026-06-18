@@ -8,7 +8,7 @@ def fast_search(
 ):
     # os.scandir returns an iterator that points directly to system memory
     for entry in os.scandir(target_dir):
-        if not entry.name.startswith(".") and not entry.name == "Library":
+        if not entry.name.startswith(".") and not entry.name in ["Library", "Downloads"]:
             condition = (
                 target_filename.lower() == entry.name.lower()
                 if full_name
@@ -16,7 +16,7 @@ def fast_search(
             )
             if condition:
                 yield Path(entry.path)
-            elif entry.is_dir(follow_symlinks=False):
+            if entry.is_dir(follow_symlinks=False):
                 # Recurse into subdirectories
                 try:
                     yield from fast_search(

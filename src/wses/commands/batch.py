@@ -33,7 +33,6 @@ def convert_csv_to_yaml(csv_dict, book_code):
     return yaml_dict
 
 def convert_csv_status(status):
-    statuses = get_status_values()
     if "draft" in status.lower():
         value = "writing"
     elif "to do" in status.lower():

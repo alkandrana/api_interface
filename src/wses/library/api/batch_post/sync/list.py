@@ -17,19 +17,19 @@ def get_scenes_in_log():
         with open(log_file, "r") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                scenes.append(row["scene_id"])
-    return scenes
+                scenes.append(row["scene_id"].upper())
+    return list(dict.fromkeys(scenes))
 
 
 # 2. using the resultant list of scenes, get all projects referenced
 def get_projects_from_log(scene_codes) -> list[str]:
     booklist = []
     for scene in scene_codes:
-        proj = get_scene_id(scene)["project"]
-        if not proj:
+        code_parts = get_scene_id(scene)
+        if not "project" in code_parts:
             print(f"Project not found for scene: {scene}")
-        if proj.lower() not in booklist:
-            booklist.append(proj.lower())
+        elif code_parts["project"].lower() not in booklist:
+            booklist.append(code_parts["project"].lower())
     return booklist
 
 # 3. get all unique scenes for a given project

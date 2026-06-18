@@ -1,3 +1,4 @@
+from ..library.api.batch_post.sync.list import get_scene_id
 from ..library.api.scenes.create_scene import post_scene
 from ..library.dates import to_zulu
 from ..library.file.scenes import get_next_scene_num
@@ -30,25 +31,26 @@ def create_scene_file(details, filename):
 
 def convert_yaml_to_payload(header):
     statuses = get_status_values()
-    project_id = get_record_id(header["project_code"], "projects")
+    codes = get_scene_id(header["scene_id"])
+    project_id = get_record_id(codes["project"], "projects")
     if not project_id:
         print("Project doesn't exist yet. Create it with 'wlogs projects new'")
         sys.exit(1)
-    status = [st for st in statuses if st["name"].lower() == header["status"]][0]
+    status = [st["id"] for st in statuses if st["name"].lower() == header["status"]]
     payload = {
         "code": header["scene_id"],
         "sequence": header["scene_order"],
         "name": header["scene_name"],
         "words": header["word_count"],
-        "statusId": status["id"],
-        "plotline": header["protagonist"],
+        "statusId": status[0] if len(status) > 0 else None,
+        "plotline": header["protagonist"] if "protagonist" in header else None,
         "created": to_zulu(header["created"]) if "created" in header else None,
         "projectId": project_id
     }
     return payload
 def get_scene_details(args):
     scene_details = {
-        "scene_id": args.code,
+        "scene_id": f"{args.project}-{args.code}",
         "scene_name": args.name,
         "project_code": args.project,
     }

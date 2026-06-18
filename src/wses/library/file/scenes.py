@@ -5,7 +5,7 @@ import sys
 from wses.library.file.search import fast_search
 
 
-def load_yaml_header(path):
+def load_yaml_header(path: Path | str) -> dict[str, str]:
     if Path(path).exists():
         with open(path, 'r') as f:
             content = f.read()

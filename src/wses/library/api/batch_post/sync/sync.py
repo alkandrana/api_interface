@@ -1,15 +1,33 @@
 import json
 from typing import Any
 
+from wses.commands.new_scene import convert_yaml_to_payload
 from wses.library.api.batch_post.scenes import get_scene_details
 from wses.library.api.batch_post.utils import post_record
 from wses.library.dates import print_list_dict
+from wses.library.file.scenes import load_yaml_header
 from wses.library.file.search import find_file
-from .list import get_projects_from_log
+from .list import get_projects_from_log, get_scenes_in_log, get_scene_id
 from wses.library.api.crud import get_record_by_code
 from wses.library.dates import print_list
 
-
+def get_scene_from_repo(code: str):
+    path = find_file(code.upper())
+    if path and path.exists():
+        details = load_yaml_header(path)
+        return details
+    return code.upper()
+def check_sync_status(scene_codes: list[str]):
+    scenes_to_add = []
+    scene_records = []
+    for sc in scene_codes:
+        code = get_scene_id(sc)["scene"]
+        res = get_record_by_code(code, "scenes")
+        if res.status_code == 404:
+            scenes_to_add.append(sc)
+        else:
+            scene_records.append(sc)
+    return {"remote": scene_records, "local": scenes_to_add}
 def sync_projects(book_codes: list[str]):
     books_to_add = []
     book_records = []
@@ -72,24 +90,56 @@ def sync_scenes_in_project(scenes):
     print("Posting scenes to API: ")
     for scene in scenes:
         post_record(scene, "scenes")
-def print_projects(_):
-    project_codes = get_projects_from_log()
-    project_status = sync_projects(project_codes)
-    remote_projects = project_status["remote"]
-    local_projects = get_local_project_details(project_status["local"])
-    print("\nProjects already saved to the API:")
-    print_list_dict(remote_projects)
-    print("Projects existing locally:")
-    print_list_dict(local_projects)
-    unsaved = get_unsaved_projects(project_status["local"], local_projects)
-    if len(unsaved) > 0:
-        print("Projects for which local details cannot be found:")
-        print_list(unsaved)
+def sync_log_scenes(_):
+    # 1. get scenes in log
+    print("\nCollecting scenes referenced in log file...")
+    scene_codes = get_scenes_in_log()
+    #2. check all scenes against the api
+    print("\nGetting list of scenes that need to be synced...")
+    scenes_to_add = check_sync_status(scene_codes)["local"]
+    if len(scenes_to_add) > 0:
+    #3 check scenes against the filesystem
+        scene_details = []
+        print("\nSearching local filesystem for scene details...")
+        for code in scenes_to_add:
+            header = get_scene_from_repo(code)
+            print(f"\n{header}")
+            scene_details.append(header)
+        #4 convert yaml headers to post details
+        batch = []
+        print("\nConverting scene headers to API-friendly payloads...")
+        for scene in scene_details:
+            batch.append(convert_yaml_to_payload(scene))
+        for b in batch:
+            print(f"\n{b}")
+        #5 post unsynced scenes
+        for payload in batch:
+            post_record(payload, "scenes")
+    else:
+        print("All scenes already synced.")
+    # project_codes = get_projects_from_log(scene_codes)
+    # project_status = sync_projects(project_codes)
+    # remote_projects = project_status["remote"]
+    # local_projects = get_local_project_details(project_status["local"])
+    # print("\nProjects already saved to the API:")
+    # print_list_dict(remote_projects)
+    # print("Projects existing locally:")
+    # print_list_dict(local_projects)
+    # unsaved = get_unsaved_projects(project_status["local"], local_projects)
+    # if len(unsaved) > 0:
+    #     print("Projects for which local details cannot be found:")
+    #     print_list(unsaved)
 
 
 def parse_batch_sync(sync_subparsers):
-    project_parser = sync_subparsers.add_parser("projects")
-    project_parser.set_defaults(func=print_projects)
-    scenes_parser = sync_subparsers.add_parser("scenes")
-    scenes_parser.add_argument("--code", "-c", required=False)
-    scenes_parser.set_defaults(func=sync_scenes)
+    project_parser = sync_subparsers.add_parser("scenes")
+    project_parser.set_defaults(func=sync_log_scenes)
+    # scenes_parser = sync_subparsers.add_parser("scenes")
+    # scenes_parser.add_argument("--code", "-c", required=False)
+    # scenes_parser.set_defaults(func=sync_scenes)
+
+#1. get scenes in log
+#2. check all scenes against api to get list that need to be added
+#3 check unsynced scenes against filesystem to find out if there are scenes for which local details cannot be determined
+#4 use filesystem yaml headers to get details for unsynced scenes
+#5 post scenes to the api
