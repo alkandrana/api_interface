@@ -26,7 +26,20 @@ def get_record_by_code(code, endpoint):
     else:
         print("An error occurred: ", res.status_code, res.reason, res.json())
         sys.exit(1)
-
+def get_record_by_id(id, endpoint):
+    request = {
+        "method": "GET",
+        "endpoint": f"{load_config()['api_url']}/{endpoint}/{id}",
+    }
+    res = send_auth_request(request)
+    if res.status_code == 404:
+        print("Record not found.")
+        sys.exit(1)
+    elif 200 <= res.status_code < 300:
+        return res.json()
+    else:
+        print("An error occurred: ", res.status_code, res.reason, res.json())
+        sys.exit(1)
 def check_record_exists(code: str, endpoint: str):
     request = {
         "method": "GET",

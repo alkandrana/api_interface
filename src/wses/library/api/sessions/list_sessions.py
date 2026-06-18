@@ -3,14 +3,14 @@ from datetime import datetime
 
 from wses import load_config
 from wses.library.api.auth import send_auth_request
-from wses.library.api.crud import get_record_id
+from wses.library.api.crud import get_record_id, get_record_by_id
 
 
 def get_all_sessions():
     request = {"method": "GET", "endpoint": f"{load_config()["api_url"]}/sessions"}
     res = send_auth_request(request)
     sessions = res.json()
-    sessions.sort(key=lambda x: datetime.fromisoformat(x["startTime"]))
+    sessions.sort(key=lambda x: datetime.fromisoformat(x["date"]))
     return sessions
 
 
@@ -23,11 +23,11 @@ def print_sessions(sessions, wpm=False):
                 print(f"{key}: {value['code']}")
             elif key == "author" and value and "userName" in value:
                 print(f"{key}: {value['userName']}")
-            elif "time" in key.lower():
+            elif "time" in key.lower() and value:
                 value = datetime.fromisoformat(value)
                 value = value.astimezone()
                 print(f"{key}: {datetime.strftime(value, '%Y-%m-%d %H:%M:%S')}")
-            elif key == "duration" or key == "wpm":
+            elif (key == "duration" or key == "wpm") and value:
                 print(f"{key}: {round(value)}")
             elif not "id" in key.lower():
                 print(f"{key}: {value}")
@@ -35,10 +35,10 @@ def print_sessions(sessions, wpm=False):
 
 
 def build_session_title(session):
-    project = session["scene"]["project"]["code"]
+    project = get_record_by_id(session["scene"]["projectId"], "projects")["code"]
     scene = session["scene"]["code"]
     date = session["date"]
-    duration = round(session["duration"])
+    duration = round(session["duration"]) if session["duration"] else 0
     title = f"{duration} minute session in {project} {scene} on {date}"
     return title
 

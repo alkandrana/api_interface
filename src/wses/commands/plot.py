@@ -2,7 +2,6 @@ import sys
 import pandas as pd
 from wses import load_config
 from wses.library.api.auth import send_auth_request
-from wses.library.dates import print_dict, print_list_dict
 
 
 def get_plotter(book_code):
