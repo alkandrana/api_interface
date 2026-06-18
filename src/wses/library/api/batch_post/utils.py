@@ -1,18 +1,10 @@
 import sys, requests, csv, os
+from ..crud import post_record
 from wses.library.api.auth import send_auth_request
 from pathlib import Path
 
 
-def get_records_from_file(path):
-    if Path(path).exists():
-        with open(path) as f:
-            reader = csv.DictReader(f)
-            records = [row for row in reader]
-        print(f"Retrieved {len(records)} records from {path}")
-        return records
-    else:
-        print("Could not find file.")
-        sys.exit(1)
+
 
 
 def get_records_from_api(url):
@@ -43,20 +35,5 @@ def batch_from_file(path, endpoint, format_records):
         post_record(rec, endpoint)
 
 
-def post_record(data, endpoint):
-    request = {
-        "method": "POST",
-        "endpoint": f"{os.getenv('BASE_URL')}/{endpoint}",
-        "payload": data,
-    }
-    res = send_auth_request(request)
-    if res.status_code == 409:
-        print("Project already added. Skipping...")
-    elif 200 <= res.status_code < 300:
-        print(f"Record successfully added:\n{data}\nProceeding...")
-    else:
-        error = res.json()
-        print("An error occured: ", res.status_code, res.reason)
-        print(error)
-        sys.exit(1)
+
 

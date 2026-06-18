@@ -1,7 +1,7 @@
 from .sync import parse_sync
 from .projects import parse_batch_projects
 from .scenes import parse_batch_scenes
-from .sessions import parse_batch_sessions
+from wses.library.api.batch_post.sync.sync_sessions import parse_batch_sessions
 
 
 def parse_batch_post(subparsers):

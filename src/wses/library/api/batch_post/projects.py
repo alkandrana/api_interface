@@ -2,7 +2,7 @@ import os
 import sys
 from typing import Any
 from .sync.list import get_projects_from_log
-from .sync.sync import (
+from .sync.sync_scenes import (
     sync_projects,
     get_local_project_details,
     get_unsaved_projects,

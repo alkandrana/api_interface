@@ -43,7 +43,7 @@ def format_dates(dates: dict[str, str]):
 
 def join_date(time, date):
     timestamp = time
-    if len(time.split("T")) < 2 and len(time.split(" ")) < 2:
+    if time and len(time.split("T")) < 2 and len(time.split(" ")) < 2:
         timestamp = "T".join([date, time])
     return timestamp
 

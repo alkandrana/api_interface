@@ -60,3 +60,20 @@ def get_patch_payload(value, prop):
             "value": value
         }]
     return payload
+
+def post_record(data, endpoint):
+    request = {
+        "method": "POST",
+        "endpoint": f"{load_config()["api_url"]}/{endpoint}",
+        "payload": data,
+    }
+    res = send_auth_request(request)
+    if res.status_code == 409:
+        print("Record already added. Skipping...")
+    elif 200 <= res.status_code < 300:
+        print(f"Record successfully added:\n{data}\nProceeding...")
+    else:
+        error = res.json()
+        print("An error occured: ", res.status_code, res.reason)
+        print(error)
+        sys.exit(1)
