@@ -3,3 +3,9 @@
 .env
 **/__pycache__/
 **/*.egg-info
+
+# Mac system files
+**/.DS_Store*
+
+# Temp files
+src/wlogs/library/scratchpad
