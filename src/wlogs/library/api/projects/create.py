@@ -1,4 +1,6 @@
 import os
+
+from wlogs import load_config
 from wlogs.library.api.auth import send_auth_request
 
 
@@ -15,7 +17,7 @@ def create_project(args):
         body["series"] = args.series
     request = {
         "method": "POST",
-        "endpoint": f"{os.getenv('BASE_URL')}/projects",
+        "endpoint": f"{load_config()['api_url']}/projects",
         "payload": body,
     }
     response = send_auth_request(request)

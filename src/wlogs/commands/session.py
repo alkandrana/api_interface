@@ -1,6 +1,7 @@
 import csv
 from datetime import datetime
 from pathlib import Path
+from .. import get_store_path, load_config
 from ..library.dates import to_zulu, print_dict
 from ..library.api.sessions.create_session import get_scene_id, post_session
 import sys, os, json
@@ -16,7 +17,7 @@ def initialize(scene):
 
 
 def tmp_save(data):
-    path = Path(os.getenv("TMP_PATH"))
+    path = get_store_path() / "session.json"
     if path.exists():
         print(f"Session already running.")
         sys.exit(1)
@@ -26,7 +27,7 @@ def tmp_save(data):
 
 
 def build_session(words):
-    path = Path(os.getenv("TMP_PATH"))
+    path = get_store_path() / "session.json"
     if path.exists():
         with open(path, "r") as f:
             data = json.load(f)
@@ -40,7 +41,7 @@ def build_session(words):
 
 
 def get_next_id():
-    path = Path(os.getenv("LOG_FILE"))
+    path = Path(load_config()['log_file'])
     if path.exists():
         with open(path, "r") as f:
             reader = csv.DictReader(f)
@@ -53,7 +54,7 @@ def get_next_id():
 
 
 def save_local(data):
-    path = Path(os.getenv("LOG_FILE"))
+    path = load_config()['log_file']
     id = get_next_id()
     csv_str = f"{id},{data['date']},{data['start_time']},{data['stop_time']},{data['scene']},{data['words']},\n"
     if path.exists():
@@ -91,16 +92,16 @@ def stop(args):
     print("Session to save: ", data)
     session = convert_to_session(data)
     status = post_session(session)
-    if 200 <= status < 300:
+    if 200 <= status.status_code < 300:
         save_local(data)
-        path = Path(os.getenv("TMP_PATH"))
+        path = get_store_path() / "session.json"
         path.unlink(missing_ok=True)
         print("Session saved")
     else:
         print("Unable to save session to API.")
 
 def status(_):
-    path = Path(os.getenv("TMP_PATH"))
+    path = get_store_path() / "session.json"
     if not path.exists():
         print("No session currently running.")
     else:
@@ -111,7 +112,7 @@ def status(_):
 
 
 def cancel(_):
-    path = Path(os.getenv("TMP_PATH"))
+    path = get_store_path()
     if path.exists():
         with open(path, "r") as f:
             data = json.load(f)

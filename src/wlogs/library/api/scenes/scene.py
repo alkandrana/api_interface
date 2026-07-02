@@ -1,4 +1,6 @@
 import os, dotenv
+
+from wlogs import load_config
 from wlogs.library.api.auth import send_auth_request
 
 dotenv.load_dotenv()
@@ -7,7 +9,7 @@ dotenv.load_dotenv()
 def get_one_scene(code: str):
     request = {
         "method": "GET",
-        "endpoint": f"{os.getenv('BASE_URL')}/scenes/code/{code}",
+        "endpoint": f"{load_config()['api_url']}/scenes/code/{code}",
     }
     scenes = send_auth_request(request)
     return scenes

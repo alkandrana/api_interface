@@ -1,5 +1,7 @@
 import sys, os, dotenv
 from datetime import datetime
+
+from wlogs import load_config
 from wlogs.library.api.auth import send_auth_request
 from ..scenes.scene import get_one_scene
 from wlogs.library.dates import to_zulu, format_dates
@@ -35,7 +37,7 @@ def build_session_body(args):
 def post_session(body):
     request = {
         "method": "POST",
-        "endpoint": f"{os.getenv('BASE_URL')}/sessions",
+        "endpoint": f"{load_config()['api_url']}/sessions",
         "payload": body,
     }
     res = send_auth_request(request)

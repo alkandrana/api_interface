@@ -183,12 +183,14 @@ def register(_):
     username = input("Enter your username: ")
     password = maskpass.askpass()
     payload = {"email": username, "password": password}
-    res = requests.post(f"{load_config()['api_url']}/register", json=payload)
+    url = f"{load_config()['api_url']}/register"
+    print("API url: ", url, payload)
+    res = requests.post(url, json=payload)
     if 200 <= res.status_code < 300:
         print("Successfully registered.")
         print("Use 'wlogs login' to continue.")
     else:
-        print("Something went wrong: ", res.status_code, res.reason, res.reason)
+        print("Something went wrong: ", res.status_code, res.reason, res.json())
 
 
 def parse_auth(subparsers):
