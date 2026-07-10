@@ -54,9 +54,9 @@ def get_next_id():
 
 
 def save_local(data):
-    path = load_config()['log_file']
+    path = Path(load_config()['log_file'])
     id = get_next_id()
-    csv_str = f"{id},{data['date']},{data['start_time']},{data['stop_time']},{data['scene']},{data['words']},\n"
+    csv_str = f"{id},{data['date']},{data['start_time']},{data['stop_time']},{data['scene']},{data['words']},{data['comments'] if 'comments' in data else ""}\n"
     if path.exists():
         with open(path, "a") as f:
             f.write(csv_str)
@@ -100,6 +100,30 @@ def stop(args):
     else:
         print("Unable to save session to API.")
 
+def save(args):
+    scene_id = get_scene_id(args.scene)
+    data = {
+        "date": args.date,
+        "start_time": args.start_time if args.start_time else None,
+        "stop_time": args.stop_time if args.stop_time else None,
+        "words": args.words,
+        "scene": args.scene,
+        "comments": args.comments if args.comments else None
+    }
+    session = {
+        "date": args.date,
+        "start_time": args.start_time if args.start_time else None,
+        "stop_time": args.stop_time if args.stop_time else None,
+        "words": args.words,
+        "sceneId": scene_id,
+        "comments": args.comments if args.comments else None
+    }
+    print("Session to save: ", session)
+    res = post_session(session)
+    if 200 <= res.status_code < 300:
+        save_local(data)
+        print("Session saved")
+
 def status(_):
     path = get_store_path() / "session.json"
     if not path.exists():
@@ -112,7 +136,7 @@ def status(_):
 
 
 def cancel(_):
-    path = get_store_path()
+    path = get_store_path() / "session.json"
     if path.exists():
         with open(path, "r") as f:
             data = json.load(f)
@@ -135,6 +159,15 @@ def parse_session(subparsers):
     stop_parser = session_subparsers.add_parser("stop")
     stop_parser.add_argument("--words", "-w", help="Words Written")
     stop_parser.set_defaults(func=stop)
+
+    save_parser = session_subparsers.add_parser("save")
+    save_parser.add_argument("--scene", "-s", required=True, help="Scene Code")
+    save_parser.add_argument("--date", "-d", required=True, help="Session Date")
+    save_parser.add_argument("--words", "-w", required=True, help="Words Written")
+    save_parser.add_argument("--start_time", "-b", required=False, help="Session Start Time")
+    save_parser.add_argument("--stop_time", "-e", required=False, help="Session End Time")
+    save_parser.add_argument("--comments", "-c", required=False, help="Session Comments")
+    save_parser.set_defaults(func=save)
 
     status_parser = session_subparsers.add_parser("status")
     status_parser.set_defaults(func=status)

@@ -21,6 +21,7 @@ def get_plotter(book_code):
 
 def show_plotter(args):
     plotter = get_plotter(args.book)
+    #plotter.sort(key=lambda x: x["sequence"])
     dataframe = pd.DataFrame(plotter)
     print(dataframe.from_dict(plotter))
 

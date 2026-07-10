@@ -41,7 +41,10 @@ def post_session(body):
         "payload": body,
     }
     res = send_auth_request(request)
-    print(f"Request status: {res.status_code, res.reason}")
+    if 200 <= res.status_code < 300:
+        print(f"Session saved to {request['endpoint']}")
+    else:
+        print(f"Unable to save session: {res.status_code, res.reason, res.json()}")
     return res
 
 
