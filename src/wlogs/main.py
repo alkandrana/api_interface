@@ -7,11 +7,11 @@ from .commands.session import parse_session
 from .commands.setup.config import parse_config
 from .commands.batch import parse_batch_scenes
 from .commands.plot import parse_plotter
-from .commands.update_project import parse_update_project
 from .commands.new_scene import parse_new_scene
 from .commands.count import parse_count
 from .library.file import parse_file
 from .library.api.auth import parse_auth
+from .commands.project import parse_project
 
 
 def main():
@@ -19,7 +19,6 @@ def main():
     subparsers = parser.add_subparsers(dest="command")
     parse_config(subparsers)
     parse_auth(subparsers)
-    parse_project(subparsers)
     parse_scenes(subparsers)
     parse_new_scene(subparsers)
     parse_session(subparsers)
@@ -28,7 +27,7 @@ def main():
     parse_batch_scenes(subparsers)
     parse_file(subparsers)
     parse_plotter(subparsers)
-    parse_update_project(subparsers)
+    parse_project(subparsers)
     args = parser.parse_args()
     args.func(args)
 

@@ -12,7 +12,7 @@ def get_project_details(code):
     goal = int(goal or 100000)
 
     project = {
-        "id": code,
+        "code": code,
         "title": title,
         "series": series if series else "N/A",
         "goal": goal,
@@ -32,6 +32,7 @@ def create_book_structure(code, world):
         doc_file = home_dir / "books" / code.upper() / "novel.json"
         with open(doc_file, "w") as f:
             json.dump(project_json, f)
+    return project_json
 
 
 def new_book(args):

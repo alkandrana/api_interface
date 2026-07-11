@@ -9,9 +9,9 @@ def load_config():
     if config_path.exists():
         with open(config_path, "r") as f:
             config = json.load(f)
-        if "api_url" not in config or "log_file" not in config:
+        if "api_url" not in config or "log_file" not in config or "novel_home" not in config:
             print(
-                "Config not complete. Set it up with 'wlogs config log' or 'wlogs config api'"
+                "Config not complete. Set it up with 'wlogs config log' or 'wlogs config api' or 'wlogs config novel'"
             )
             sys.exit(1)
         return config

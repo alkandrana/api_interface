@@ -112,8 +112,8 @@ def save(args):
     }
     session = {
         "date": args.date,
-        "start_time": args.start_time if args.start_time else None,
-        "stop_time": args.stop_time if args.stop_time else None,
+        "start_time": to_zulu(args.start_time) if args.start_time else None,
+        "stop_time": to_zulu(args.stop_time) if args.stop_time else None,
         "words": args.words,
         "sceneId": scene_id,
         "comments": args.comments if args.comments else None

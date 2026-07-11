@@ -34,11 +34,11 @@ def convert_yaml_to_payload(header):
     codes = get_scene_id(header["scene_id"])
     project_id = get_record_id(codes["project"], "projects")
     if not project_id:
-        print("Project doesn't exist yet. Create it with 'wlogs projects new'")
+        print("Book doesn't exist yet. Create it with 'wlogs project add'")
         sys.exit(1)
     status = [st["id"] for st in statuses if st["name"].lower() == header["status"]]
     payload = {
-        "code": header["scene_id"],
+        "code": codes["scene"],
         "sequence": header["scene_order"],
         "name": header["scene_name"],
         "words": header["word_count"],
@@ -74,12 +74,14 @@ def get_scene_details(args):
 def create_scene(args):
     scene_details = get_scene_details(args)
     book_path = get_book_path(scene_details["project_code"])
-    filename = get_scenes_dir(scene_details, book_path) / f"{scene_details["project_code"]}-{scene_details['scene_id']}.md"
+    filename = get_scenes_dir(scene_details, book_path) / f"{scene_details['scene_id']}.md"
     create_scene_file(scene_details, filename)
     payload = convert_yaml_to_payload(scene_details)
     res = post_scene(payload)
     if 200 <= res.status_code < 300:
         print("Scene successfully saved to the API")
+    elif res.status_code == 409:
+        print("Scene already exists. Skipping...")
     else:
         print("There was an error: ", res.status_code, res.reason, res.json())
 

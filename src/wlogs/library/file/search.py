@@ -2,6 +2,8 @@ import os
 import sys
 from pathlib import Path
 
+from wlogs import load_config
+
 
 def fast_search(
     target_filename, target_dir: Path | str = Path.home(), full_name: bool = False
@@ -45,7 +47,7 @@ def find_file(
     return Path(choice)
 
 def get_book_path(book_id):
-    path = find_file(book_id)
+    path = find_file(book_id, target_dir=load_config()["novel_home"], full_name=True)
     if path is None or not path.exists():
         print("File path not found. Verify that the book id corresponds to all or part of a directory name and try again.")
         sys.exit(1)
