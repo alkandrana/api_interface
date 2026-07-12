@@ -110,14 +110,7 @@ def save(args):
         "scene": args.scene,
         "comments": args.comments if args.comments else None
     }
-    session = {
-        "date": args.date,
-        "start_time": to_zulu(args.start_time) if args.start_time else None,
-        "stop_time": to_zulu(args.stop_time) if args.stop_time else None,
-        "words": args.words,
-        "sceneId": scene_id,
-        "comments": args.comments if args.comments else None
-    }
+    session = convert_to_session(data)
     print("Session to save: ", session)
     res = post_session(session)
     if 200 <= res.status_code < 300:

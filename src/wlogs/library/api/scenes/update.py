@@ -1,11 +1,12 @@
 import os, dotenv
 import sys
 
-from wlogs.library.api.crud import get_record_id, send_auth_request
+from wlogs.library.api.crud import send_auth_request
+from wlogs.library.api.scenes.scene import get_scene_id
 
 dotenv.load_dotenv()
 def build_patch(args):
-    scene_id = get_record_id(args.code, "scenes")
+    scene_id = get_scene_id(args.code)
     print(f"ID for scene with code {args.code}: {scene_id}")
     payload = {
         "op": "replace",

@@ -5,19 +5,17 @@ from wlogs import load_config
 from wlogs.library.api.auth import send_auth_request
 from dotenv import load_dotenv
 
+from wlogs.library.api.crud import get_record_id
+
 load_dotenv()
 
 asp_url = os.getenv("BASE_URL")
 node_url = "http://localhost:3000"
 
-def get_project_id(project_code, endpoint):
-    project_req = {"method": "GET", "endpoint": f"{endpoint}/{project_code}"}
-    res = send_auth_request(project_req)
-    if res.status_code == 404:
-        print("Project does not exist.")
-        sys.exit(1)
-    else:
-        return res.json()["id"]
+def get_project_id(project_code):
+    options = get_record_id(project_code, "projects")
+    project = options[0]
+    return project["id"]
 
 
 def send_request(request):

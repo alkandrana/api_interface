@@ -3,7 +3,8 @@ from ..library.api.scenes.create_scene import post_scene
 from ..library.dates import to_zulu
 from ..library.file.scenes import get_next_scene_num
 from ..library.file.search import get_book_path
-from ..library.api.crud import get_status_values, get_record_id
+from ..library.api.crud import get_status_values
+from . import get_project_id
 import yaml
 import sys
 
@@ -32,7 +33,7 @@ def create_scene_file(details, filename):
 def convert_yaml_to_payload(header):
     statuses = get_status_values()
     codes = get_scene_id(header["scene_id"])
-    project_id = get_record_id(codes["project"], "projects")
+    project_id = get_project_id(codes["project"])
     if not project_id:
         print("Book doesn't exist yet. Create it with 'wlogs project add'")
         sys.exit(1)

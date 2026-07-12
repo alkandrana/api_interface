@@ -1,7 +1,9 @@
 import os, dotenv
 
 from wlogs import load_config
+from wlogs.commands import get_project_id
 from wlogs.library.api.auth import send_auth_request
+from wlogs.library.api.crud import get_record_id
 
 dotenv.load_dotenv()
 
@@ -31,7 +33,16 @@ def print_scene(scenelist):
         elif key == "project":
             print(f"project title: {value['title']}")
 
-
+def get_scene_id(code: str):
+    options = get_record_id(code, "scenes")
+    if len(options) > 1:
+        project_code = input("Multiple scenes match that scene code. Please specify the project code: ")
+        project_id = get_project_id(project_code)
+        scene_match = next((scene for scene in options if scene["projectId"] == project_id), None)
+        scene_id = scene_match["id"]
+    else:
+        scene_id = options[0]["id"]
+    return scene_id
 def view_one_scene(args):
     scenes = get_one_scene(args.code)
     print_scene(scenes)

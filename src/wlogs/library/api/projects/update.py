@@ -1,9 +1,12 @@
-from ..crud import get_record_id
 from .... import load_config
 from ..auth import send_auth_request
 import sys
+
+from ....commands import get_project_id
+
+
 def build_project_patch(payload, project_code):
-    project_id = get_record_id(project_code, "projects")
+    project_id = get_project_id(project_code)
     request = {
         "method": "PATCH",
         "endpoint": f"{load_config()['api_url']}/projects/{project_id}",

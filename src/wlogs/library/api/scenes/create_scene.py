@@ -34,7 +34,7 @@ def post_scene(body):
 
 
 def create_scene(args):
-    project_id = get_project_id(args.project, f"{load_config()['api_url']}/projects/code")
+    project_id = get_project_id(args.project)
     body = build_body(args, project_id)
     response = post_scene(body)
     print(f"Response status: {response.status_code} {response.reason}")

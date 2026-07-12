@@ -1,10 +1,11 @@
 import sys, os, dotenv
 from pathlib import Path
 from .utils import transfer, post_record
-from wlogs.library.api.crud import get_status_values, get_record_id, get_record_id
+from wlogs.library.api.crud import get_status_values
 from wlogs.library.file.scenes import load_yaml_header
 from wlogs.library.file.search import find_file, fast_search
 from ..projects.list import get_project_by_id
+from ....commands import get_project_id
 
 dotenv.load_dotenv()
 node_url = 'http://localhost:3000'
@@ -50,7 +51,7 @@ def build_scene_from_file(scene_header, project_id):
 
 def get_scene_details(book_code):
     # check whether project exists
-    project_id = get_record_id(book_code, "projects")
+    project_id = get_project_id(book_code)
     if not project_id:
         print("Project doesn't exist yet. Create it with 'wlogs projects create', or create all missing projects with 'wlogs batch projects -s file'")
         sys.exit(1)
@@ -84,7 +85,7 @@ def get_project_relation(sc):
         "endpoint": f"{node_url}/projects/{sc['projectId']}",
     }
     code = get_project_by_id(req)
-    project_id = get_record_id(code, "projects")
+    project_id = get_project_id(code)
     return project_id
 
 

@@ -2,8 +2,10 @@ import sys
 from datetime import datetime
 
 from wlogs import load_config
+from wlogs.commands import get_project_id
 from wlogs.library.api.auth import send_auth_request
-from wlogs.library.api.crud import get_record_id, get_record_by_id
+from wlogs.library.api.crud import get_record_by_id
+from wlogs.library.api.scenes.scene import get_scene_id
 
 
 def get_all_sessions():
@@ -53,14 +55,14 @@ def get_by_date(date, sessions):
 
 
 def get_by_scene(scene):
-    scene_id = get_record_id(scene, "scenes")
+    scene_id = get_scene_id(scene)
     request = {"method": "GET", "endpoint": f"{load_config()["api_url"]}/sessions/scene/{scene_id}"}
     res = send_auth_request(request)
     return res.json()
 
 
 def get_by_project(project):
-    project_id = get_record_id(project, "projects")
+    project_id = get_project_id(project)
     request = {"method": "GET", "endpoint": f"{load_config()["api_url"]}/sessions/project/{project_id}"}
     res = send_auth_request(request)
     return res.json()

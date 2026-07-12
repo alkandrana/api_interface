@@ -13,7 +13,7 @@ def get_record_id(code, endpoint):
     if res.status_code == 404:
         return None
     else:
-        return res.json()["id"]
+        return res.json()
 
 def get_record_by_code(code, endpoint):
     request = {
